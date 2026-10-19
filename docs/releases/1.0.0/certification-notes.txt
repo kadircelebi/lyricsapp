@@ -1,0 +1,15 @@
+MrW Lyrics is a desktop lyrics viewer (WPF, packaged with MSIX). It reads the song currently playing on Windows through the System Media Transport Controls (the same data as the Windows media flyout) and shows its lyrics, synced line by line when available.
+
+How to test:
+1. Play a well-known song in any app that appears in the Windows media flyout, for example Spotify, YouTube in Microsoft Edge, or Windows Media Player with a tagged audio file (e.g. Queen - Bohemian Rhapsody).
+2. Start MrW Lyrics. Within a few seconds the title, artist and lyrics appear. With synced lyrics the current line is highlighted and follows playback.
+3. Toolbar: pin = always on top, eye = transparent lyrics-only mode (click a lyric line to bring the controls back, double-click to leave the mode), list = karaoke focus, gear = appearance settings. Right-click the window for the same options.
+If nothing is playing, the window asks you to start playing music. This is expected.
+
+No account, sign-in, purchase or test credentials are needed.
+
+Network: to look up lyrics, the app sends the current track's artist, title, album and duration to lyrics services (lrclib.net, Musixmatch, Genius, lyrics.ovh). There is no telemetry or analytics, and no audio is recorded.
+
+Files: settings are stored in the app's AppData folder. Lyrics that are found are saved as .lrc/.txt files in the user's Music\Lyrics folder so they can be reused offline.
+
+runFullTrust: required because this is a Win32/WPF desktop app. It reads the Windows media session and saves lyrics files to the user's Music folder. It installs no services, drivers or startup tasks and needs no administrator rights.

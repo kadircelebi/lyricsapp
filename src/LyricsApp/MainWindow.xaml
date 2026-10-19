@@ -2,7 +2,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:LyricsApp"
-        Title="Şarkı Sözleri"
+        Title="{local:Loc MainWindowTitle}"
+        Icon="/LyricsApp.ico"
         Width="460" Height="640" MinWidth="240" MinHeight="120"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent" ResizeMode="CanResize"
         Topmost="{Binding Display.Topmost}"
@@ -17,16 +18,16 @@
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
 
         <ContextMenu x:Key="WindowMenu">
-            <MenuItem Header="Her zaman üstte" IsCheckable="True" IsChecked="{Binding Display.Topmost}" />
-            <MenuItem Header="Sadece sözler (saydam)" IsCheckable="True" IsChecked="{Binding Display.LyricsOnly}" />
-            <MenuItem Header="Karaoke odak" IsCheckable="True" IsChecked="{Binding Display.FocusMode}" />
-            <MenuItem Header="Satır dolum efekti" IsCheckable="True" IsChecked="{Binding Display.LineFill}" />
+            <MenuItem Header="{local:Loc AlwaysOnTop}" IsCheckable="True" IsChecked="{Binding Display.Topmost}" />
+            <MenuItem Header="{local:Loc MenuLyricsOnly}" IsCheckable="True" IsChecked="{Binding Display.LyricsOnly}" />
+            <MenuItem Header="{local:Loc MenuFocusMode}" IsCheckable="True" IsChecked="{Binding Display.FocusMode}" />
+            <MenuItem Header="{local:Loc MenuLineFill}" IsCheckable="True" IsChecked="{Binding Display.LineFill}" />
             <Separator />
-            <MenuItem Header="Sözleri yeniden ara" Click="OnRetryClick" />
-            <MenuItem Header="Söz klasörünü aç" Click="OnOpenFolderClick" />
-            <MenuItem Header="Görünüm ayarları…" Click="OnSettingsClick" />
+            <MenuItem Header="{local:Loc RetrySearch}" Click="OnRetryClick" />
+            <MenuItem Header="{local:Loc OpenLyricsFolder}" Click="OnOpenFolderClick" />
+            <MenuItem Header="{local:Loc MenuDisplaySettings}" Click="OnSettingsClick" />
             <Separator />
-            <MenuItem Header="Kapat" Click="OnCloseClick" />
+            <MenuItem Header="{local:Loc Close}" Click="OnCloseClick" />
         </ContextMenu>
     </Window.Resources>
 
@@ -200,25 +201,26 @@
 
                 <StackPanel Grid.Column="2">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <ToggleButton Style="{StaticResource ToolToggle}" Content="&#xE718;" ToolTip="Her zaman üstte" AutomationProperties.Name="Her zaman üstte"
+                        <ToggleButton Style="{StaticResource ToolToggle}" Content="&#xE718;" ToolTip="{local:Loc AlwaysOnTop}" AutomationProperties.Name="{local:Loc AlwaysOnTop}"
                                       IsChecked="{Binding Display.Topmost}" />
-                        <ToggleButton Style="{StaticResource ToolToggle}" Content="&#xE890;" ToolTip="Sadece sözler (saydam pencere)" AutomationProperties.Name="Sadece sözler (saydam pencere)"
+                        <ToggleButton Style="{StaticResource ToolToggle}" Content="&#xE890;" ToolTip="{local:Loc ToolLyricsOnly}" AutomationProperties.Name="{local:Loc ToolLyricsOnly}"
                                       IsChecked="{Binding Display.LyricsOnly}" />
-                        <ToggleButton Style="{StaticResource ToolToggle}" Content="&#xE8FD;" ToolTip="Karaoke odak (yalnızca yakın satırlar)" AutomationProperties.Name="Karaoke odak (yalnızca yakın satırlar)"
+                        <ToggleButton Style="{StaticResource ToolToggle}" Content="&#xE8FD;" ToolTip="{local:Loc ToolFocusMode}" AutomationProperties.Name="{local:Loc ToolFocusMode}"
                                       IsChecked="{Binding Display.FocusMode}" />
-                        <Button Style="{StaticResource ToolButton}" Content="&#xE713;" ToolTip="Görünüm ayarları" AutomationProperties.Name="Görünüm ayarları" Click="OnSettingsClick" />
-                        <Button Style="{StaticResource ToolButton}" Content="&#xE921;" ToolTip="Simge durumuna küçült" AutomationProperties.Name="Simge durumuna küçült" Click="OnMinimizeClick" />
-                        <Button Style="{StaticResource ToolButton}" Content="&#xE8BB;" ToolTip="Kapat" AutomationProperties.Name="Kapat" Click="OnCloseClick" />
+                        <Button Style="{StaticResource ToolButton}" Content="&#xE713;" ToolTip="{local:Loc DisplaySettings}" AutomationProperties.Name="{local:Loc DisplaySettings}"
+                                AutomationProperties.AutomationId="SettingsButton" Click="OnSettingsClick" />
+                        <Button Style="{StaticResource ToolButton}" Content="&#xE921;" ToolTip="{local:Loc Minimize}" AutomationProperties.Name="{local:Loc Minimize}" Click="OnMinimizeClick" />
+                        <Button Style="{StaticResource ToolButton}" Content="&#xE8BB;" ToolTip="{local:Loc Close}" AutomationProperties.Name="{local:Loc Close}" Click="OnCloseClick" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Style="{StaticResource ToolButton}" Content="&#xE72C;" Height="24" ToolTip="Sözleri yeniden ara" AutomationProperties.Name="Sözleri yeniden ara" Click="OnRetryClick" />
-                        <Button Style="{StaticResource ToolButton}" Content="&#xE838;" Height="24" ToolTip="Söz klasörünü aç" AutomationProperties.Name="Söz klasörünü aç" Click="OnOpenFolderClick" />
+                        <Button Style="{StaticResource ToolButton}" Content="&#xE72C;" Height="24" ToolTip="{local:Loc RetrySearch}" AutomationProperties.Name="{local:Loc RetrySearch}" Click="OnRetryClick" />
+                        <Button Style="{StaticResource ToolButton}" Content="&#xE838;" Height="24" ToolTip="{local:Loc OpenLyricsFolder}" AutomationProperties.Name="{local:Loc OpenLyricsFolder}" Click="OnOpenFolderClick" />
                         <StackPanel Orientation="Horizontal" Visibility="{Binding IsSynced, Converter={StaticResource BoolToVisibility}}">
-                            <Button Style="{StaticResource ToolButton}" Content="&#xE738;" Height="24" ToolTip="Sözleri geciktir (−0,5 sn)" AutomationProperties.Name="Sözleri geciktir (−0,5 sn)" Click="OnOffsetMinusClick" />
+                            <Button Style="{StaticResource ToolButton}" Content="&#xE738;" Height="24" ToolTip="{local:Loc OffsetMinus}" AutomationProperties.Name="{local:Loc OffsetMinus}" Click="OnOffsetMinusClick" />
                             <TextBlock x:Name="OffsetLabel" Text="{Binding OffsetText}" Foreground="{StaticResource SecondaryText}" FontSize="11"
                                        MinWidth="44" TextAlignment="Center" VerticalAlignment="Center" Cursor="Hand"
-                                       ToolTip="Zaman kaydırma (sıfırlamak için tıklayın)" MouseLeftButtonUp="OnOffsetResetClick" />
-                            <Button Style="{StaticResource ToolButton}" Content="&#xE710;" Height="24" ToolTip="Sözleri öne al (+0,5 sn)" AutomationProperties.Name="Sözleri öne al (+0,5 sn)" Click="OnOffsetPlusClick" />
+                                       ToolTip="{local:Loc OffsetLabelToolTip}" MouseLeftButtonUp="OnOffsetResetClick" />
+                            <Button Style="{StaticResource ToolButton}" Content="&#xE710;" Height="24" ToolTip="{local:Loc OffsetPlus}" AutomationProperties.Name="{local:Loc OffsetPlus}" Click="OnOffsetPlusClick" />
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>

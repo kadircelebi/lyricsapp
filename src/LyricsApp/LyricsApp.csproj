@@ -4,13 +4,51 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
     <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <UseWPF>true</UseWPF>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyName>LyricsApp</AssemblyName>
     <Product>LyricsApp</Product>
-    <Version>0.1.0</Version>
+    <Version>1.0.0</Version>
+    <ApplicationIcon>LyricsApp.ico</ApplicationIcon>
+    <!-- Localization/Strings.resx is English; Strings.tr.resx builds the tr satellite assembly. -->
+    <NeutralLanguage>en</NeutralLanguage>
+    <!-- resources.pri fallback for languages other than en/tr. Without it the MSIX build here chose tr-TR. -->
+    <DefaultLanguage>en-US</DefaultLanguage>
   </PropertyGroup>
+
+  <!--
+    Single-project MSIX (Package.appxmanifest). A normal build stays a plain unpackaged exe;
+    the .msix is only made with GenerateAppxPackageOnBuild=true and a RuntimeIdentifier.
+    See docs/store-packaging.md.
+  -->
+  <PropertyGroup>
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <WindowsPackageType>None</WindowsPackageType>
+    <Platforms>x64;ARM64</Platforms>
+    <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
+    <AppxPackageDir>$(MSBuildThisFileDirectory)..\..\artifacts\msix\</AppxPackageDir>
+    <AppxBundle>Never</AppxBundle>
+    <AppxPackageSigningEnabled>false</AppxPackageSigningEnabled>
+    <GenerateTestArtifacts>false</GenerateTestArtifacts>
+  </PropertyGroup>
+
+  <!-- The Store has no .NET 10 framework package, so the packaged app carries its own runtime. -->
+  <PropertyGroup Condition="'$(GenerateAppxPackageOnBuild)' == 'true'">
+    <WindowsPackageType>MSIX</WindowsPackageType>
+    <SelfContained>true</SelfContained>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\*.png" />
+    <Resource Include="LyricsApp.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.2705" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools.MSIX" Version="1.7.261008100" PrivateAssets="all" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\LyricsApp.Core\LyricsApp.Core.csproj" />

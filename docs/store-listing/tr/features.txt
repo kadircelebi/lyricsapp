@@ -1,0 +1,12 @@
+Çalan şarkıyı kendiliğinden bulur: Spotify, tarayıcıda YouTube, Windows Medya Oynatıcısı ve diğerleri
+Senkron sözler, o an söylenen satır vurgulanır
+Karaoke odak: yalnızca söylenen satır ve çevresi görünür
+Saydam "sadece sözler" modu, tıklamalar harflerin dışından arkaya geçer
+Satır dolum efekti
+Yazı tipi, boyut, renk, gölge ve hazır stiller
+Her zaman üstte
+Yarım saniyelik adımlarla zaman kaydırma
+Sözler Müzik\Lyrics klasörüne kaydedilir, tekrar dinlerken internet gerekmez
+Kendi .lrc dosyalarınızı kullanabilirsiniz
+Ses kaydı yok, hesap yok, reklam yok
+Türkçe ve İngilizce arayüz

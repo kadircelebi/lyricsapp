@@ -2,7 +2,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:LyricsApp"
-        Title="Görünüm ayarları"
+        Title="{local:Loc DisplaySettings}"
+        Icon="/LyricsApp.ico"
         Width="400" Height="720" MinWidth="340" MinHeight="300"
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False" ResizeMode="CanResize"
         Background="{StaticResource WindowBackground}" Foreground="{StaticResource PrimaryText}"
@@ -53,75 +54,73 @@
     <ScrollViewer VerticalScrollBarVisibility="Hidden">
         <StackPanel Margin="20,4,20,20">
 
-            <TextBlock Text="PENCERE" Style="{StaticResource Section}" />
-            <CheckBox Content="Her zaman üstte" IsChecked="{Binding Topmost}" />
+            <TextBlock Text="{local:Loc SectionWindow}" Style="{StaticResource Section}" />
+            <CheckBox Content="{local:Loc AlwaysOnTop}" IsChecked="{Binding Topmost}" />
             <CheckBox IsChecked="{Binding LyricsOnly}">
-                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource PrimaryText}">
-                    Sadece sözler: saydam pencere. Kontroller fareyle üzerine gelince görünür; çift tıklama da açıp kapatır.
-                </TextBlock>
+                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource PrimaryText}" Text="{local:Loc SettingsLyricsOnly}" />
             </CheckBox>
             <TextBlock Style="{StaticResource Label}">
-                <Run Text="Arka plan opaklığı:" />
+                <Run Text="{local:Loc BackgroundOpacity}" />
                 <Run Text="{Binding BackgroundOpacity, StringFormat={}{0:P0}, Mode=OneWay}" />
             </TextBlock>
             <Slider Minimum="0" Maximum="1" SmallChange="0.05" LargeChange="0.1" Value="{Binding BackgroundOpacity}" />
 
-            <TextBlock Text="KARAOKE" Style="{StaticResource Section}" />
-            <CheckBox Content="Karaoke odak: yalnızca aktif satır ve çevresi" IsChecked="{Binding FocusMode}" />
+            <TextBlock Text="{local:Loc SectionKaraoke}" Style="{StaticResource Section}" />
+            <CheckBox IsChecked="{Binding FocusMode}">
+                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource PrimaryText}" Text="{local:Loc SettingsFocusMode}" />
+            </CheckBox>
             <TextBlock Style="{StaticResource Label}">
-                <Run Text="Öncesinde ve sonrasında gösterilen satır:" />
+                <Run Text="{local:Loc ContextLines}" />
                 <Run Text="{Binding ContextLines, Mode=OneWay}" />
             </TextBlock>
             <Slider Minimum="0" Maximum="6" IsSnapToTickEnabled="True" TickFrequency="1" Value="{Binding ContextLines}"
                     IsEnabled="{Binding FocusMode}" />
             <CheckBox IsChecked="{Binding LineFill}">
-                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource PrimaryText}">
-                    Satır dolum efekti (aktif satır söylendikçe soldan sağa dolar; çalarken biraz daha fazla işlemci kullanır)
-                </TextBlock>
+                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource PrimaryText}" Text="{local:Loc SettingsLineFill}" />
             </CheckBox>
 
-            <TextBlock Text="YAZI" Style="{StaticResource Section}" />
-            <TextBlock Text="Hazır stiller" Style="{StaticResource Label}" />
+            <TextBlock Text="{local:Loc SectionText}" Style="{StaticResource Section}" />
+            <TextBlock Text="{local:Loc Presets}" Style="{StaticResource Label}" />
             <WrapPanel>
-                <Button Style="{StaticResource PresetButton}" Content="Klasik" Tag="classic" Click="OnPresetClick" />
-                <Button Style="{StaticResource PresetButton}" Content="Karaoke sarı" Tag="karaoke" Click="OnPresetClick" />
-                <Button Style="{StaticResource PresetButton}" Content="Neon" Tag="neon" Click="OnPresetClick" />
-                <Button Style="{StaticResource PresetButton}" Content="Sade" Tag="plain" Click="OnPresetClick" />
+                <Button Style="{StaticResource PresetButton}" Content="{local:Loc PresetClassic}" Tag="classic" Click="OnPresetClick" />
+                <Button Style="{StaticResource PresetButton}" Content="{local:Loc PresetKaraoke}" Tag="karaoke" Click="OnPresetClick" />
+                <Button Style="{StaticResource PresetButton}" Content="{local:Loc PresetNeon}" Tag="neon" Click="OnPresetClick" />
+                <Button Style="{StaticResource PresetButton}" Content="{local:Loc PresetPlain}" Tag="plain" Click="OnPresetClick" />
             </WrapPanel>
 
-            <TextBlock Text="Yazı tipi" Style="{StaticResource Label}" />
+            <TextBlock Text="{local:Loc Font}" Style="{StaticResource Label}" />
             <ComboBox x:Name="FontBox" IsEditable="True" Text="{Binding FontFamily, UpdateSourceTrigger=LostFocus}" />
 
             <TextBlock Style="{StaticResource Label}">
-                <Run Text="Aktif satır boyutu:" />
+                <Run Text="{local:Loc ActiveLineSize}" />
                 <Run Text="{Binding FontSize, StringFormat={}{0:0}, Mode=OneWay}" />
             </TextBlock>
             <Slider Minimum="12" Maximum="72" SmallChange="1" LargeChange="4" Value="{Binding FontSize}" />
 
-            <TextBlock Text="Aktif satır rengi" Style="{StaticResource Label}" />
+            <TextBlock Text="{local:Loc ActiveLineColor}" Style="{StaticResource Label}" />
             <local:ColorField Value="{Binding ActiveColor}" />
 
-            <TextBlock Text="Diğer satırların rengi" Style="{StaticResource Label}" />
+            <TextBlock Text="{local:Loc InactiveLineColor}" Style="{StaticResource Label}" />
             <local:ColorField Value="{Binding InactiveColor}" />
 
-            <TextBlock Text="GÖLGE" Style="{StaticResource Section}" />
-            <CheckBox Content="Gölge / parlama" IsChecked="{Binding ShadowEnabled}" />
+            <TextBlock Text="{local:Loc SectionShadow}" Style="{StaticResource Section}" />
+            <CheckBox Content="{local:Loc ShadowEnabled}" IsChecked="{Binding ShadowEnabled}" />
             <StackPanel IsEnabled="{Binding ShadowEnabled}">
-                <TextBlock Text="Gölge rengi" Style="{StaticResource Label}" />
+                <TextBlock Text="{local:Loc ShadowColor}" Style="{StaticResource Label}" />
                 <local:ColorField Value="{Binding ShadowColor}" />
                 <TextBlock Style="{StaticResource Label}">
-                    <Run Text="Yumuşaklık:" />
+                    <Run Text="{local:Loc ShadowBlur}" />
                     <Run Text="{Binding ShadowBlur, StringFormat={}{0:0}, Mode=OneWay}" />
                 </TextBlock>
                 <Slider Minimum="0" Maximum="40" SmallChange="1" Value="{Binding ShadowBlur}" />
                 <TextBlock Style="{StaticResource Label}">
-                    <Run Text="Uzaklık:" />
+                    <Run Text="{local:Loc ShadowDepth}" />
                     <Run Text="{Binding ShadowDepth, StringFormat={}{0:0}, Mode=OneWay}" />
-                    <Run Text="(0 = metnin etrafında parlama)" Foreground="{StaticResource DimText}" />
+                    <Run Text="{local:Loc ShadowDepthHint}" Foreground="{StaticResource DimText}" />
                 </TextBlock>
                 <Slider Minimum="0" Maximum="12" SmallChange="1" Value="{Binding ShadowDepth}" />
                 <TextBlock Style="{StaticResource Label}">
-                    <Run Text="Yoğunluk:" />
+                    <Run Text="{local:Loc ShadowOpacity}" />
                     <Run Text="{Binding ShadowOpacity, StringFormat={}{0:P0}, Mode=OneWay}" />
                 </TextBlock>
                 <Slider Minimum="0" Maximum="1" SmallChange="0.05" Value="{Binding ShadowOpacity}" />

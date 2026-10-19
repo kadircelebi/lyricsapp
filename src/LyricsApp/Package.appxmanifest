@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- MSIX manifest for the Microsoft Store. Build and sideload steps: docs/store-packaging.md -->
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap rescap">
+
+  <!--
+    Identity from Partner Center > MrW Lyrics > Product identity (Store ID 9N5X2VHWXJWQ,
+    package family name MrWProject.MrWLyrics_1jmj08nda0ave). Do not change these values.
+    Publisher must also match the local test certificate's subject (New-DevCertificate.ps1).
+    Version: the Store requires the last part to be 0.
+  -->
+  <Identity
+    Name="MrWProject.MrWLyrics"
+    Publisher="CN=BE7956F6-3D06-4F0C-B8B9-FAA5D1653D9F"
+    Version="1.0.0.0" />
+
+  <Properties>
+    <!-- DisplayName is the name reserved in Partner Center. -->
+    <DisplayName>MrW Lyrics</DisplayName>
+    <PublisherDisplayName>MrWProject</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <!-- The build fills these in from TargetPlatformMinVersion and the TargetFramework's Windows version. -->
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.19041.0" />
+  </Dependencies>
+
+  <!-- The app and the Store listing are English and Turkish; the first one is the default.
+       Localized manifest text comes from Localization/<language>/Resources.resw (resources.pri). -->
+  <Resources>
+    <Resource Language="en-US" />
+    <Resource Language="tr-TR" />
+  </Resources>
+
+  <Applications>
+    <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="$targetentrypoint$">
+      <uap:VisualElements
+        DisplayName="MrW Lyrics"
+        Description="ms-resource:AppDescription"
+        BackgroundColor="transparent"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" Square71x71Logo="Assets\SmallTile.png" Square310x310Logo="Assets\LargeTile.png" />
+        <uap:SplashScreen Image="Assets\SplashScreen.png" BackgroundColor="#1B1B19" />
+      </uap:VisualElements>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <!-- Lyrics lookups (LrcLib and the optional sources). -->
+    <Capability Name="internetClient" />
+    <!-- Full-trust desktop app. Settings go to %APPDATA%\LyricsApp (per-package, removed on uninstall)
+         and lyrics to Music\Lyrics (user files, kept). See docs/store-packaging.md. -->
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+</Package>

@@ -1,4 +1,4 @@
-# Private: prototypes, experiments, brand assets (never pushed)
+﻿# Private: prototypes, experiments, brand assets (never pushed)
 do_not_share/
 
 # Build output
@@ -8,6 +8,7 @@ obj/
 [Rr]elease/
 publish/
 artifacts/
+dist/
 
 # Tests
 TestResults/

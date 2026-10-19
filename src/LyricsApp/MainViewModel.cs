@@ -6,6 +6,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using LyricsApp.Core;
+using LyricsApp.Core.Providers;
 using LyricsApp.Media;
 
 namespace LyricsApp;
@@ -43,7 +44,7 @@ public sealed class LineViewModel(TimeSpan? time, string text) : ObservableObjec
 public sealed class MainViewModel : ObservableObject, IDisposable
 {
     private readonly AppSettings settings;
-    private readonly MediaWatcher watcher;
+    private readonly IMediaSource watcher;
     private readonly LyricsService lyricsService;
     private readonly Dispatcher dispatcher;
     private readonly DispatcherTimer syncTimer;
@@ -54,15 +55,15 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private TrackInfo? currentQuery;
     private bool isWindowVisible = true;
 
-    private string title = "Şarkı bekleniyor";
+    private string title = Strings.WaitingForTrack;
     private string artist = string.Empty;
-    private string status = "Bir uygulamada müzik çalmaya başlayın.";
+    private string status = Strings.StartPlaying;
     private string providerName = string.Empty;
     private ImageSource? thumbnail;
     private bool isSynced;
     private int activeIndex = -1;
 
-    public MainViewModel(AppSettings settings, MediaWatcher watcher, LyricsService lyricsService, Dispatcher dispatcher)
+    public MainViewModel(AppSettings settings, IMediaSource watcher, LyricsService lyricsService, Dispatcher dispatcher)
     {
         this.settings = settings;
         this.watcher = watcher;
@@ -138,9 +139,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
     public int ActiveIndex => activeIndex;
 
-    public string OffsetText => settings.OffsetSeconds == 0
-        ? "0 sn"
-        : settings.OffsetSeconds.ToString("+0.0;-0.0", CultureInfo.CurrentCulture) + " sn";
+    public string OffsetText => Strings.OffsetSeconds(settings.OffsetSeconds == 0
+        ? "0"
+        : settings.OffsetSeconds.ToString("+0.0;-0.0", CultureInfo.CurrentCulture));
 
     public async Task StartAsync()
     {
@@ -150,7 +151,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
         catch (Exception ex)
         {
-            Status = "Windows medya oturumuna bağlanılamadı: " + ex.Message;
+            Status = Strings.MediaSessionFailed(ex.Message);
         }
     }
 
@@ -186,10 +187,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         if (track is null)
         {
             currentQuery = null;
-            Title = "Şarkı bekleniyor";
+            Title = Strings.WaitingForTrack;
             Artist = string.Empty;
             Thumbnail = null;
-            Status = "Bir uygulamada müzik çalmaya başlayın.";
+            Status = Strings.StartPlaying;
             return;
         }
 
@@ -208,7 +209,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         searchCts?.Cancel();
         var cts = searchCts = new CancellationTokenSource();
         ClearLyrics();
-        Status = "Sözler aranıyor…";
+        Status = Strings.Searching;
 
         LyricsSearchResult search;
         try
@@ -240,18 +241,27 @@ public sealed class MainViewModel : ObservableObject, IDisposable
                 Status = string.Empty;
                 break;
             case InstrumentalLyrics:
-                Status = "Enstrümantal parça.";
+                Status = Strings.Instrumental;
                 break;
             default:
                 Status = search.Errors.Count > 0
-                    ? "Sözler bulunamadı (bağlantı hatası olabilir)."
-                    : "Bu şarkı için söz bulunamadı.";
+                    ? Strings.NotFoundWithErrors
+                    : Strings.NotFound;
                 break;
         }
-        ProviderName = search.Result is null ? string.Empty : search.Result.Lyrics.Source;
+        ProviderName = search.Result is null ? string.Empty : DisplaySource(search.Result.Lyrics.Source);
         UpdateLineStates();
         UpdateTimer();
         UpdateActiveLine();
+    }
+
+    /// <summary>The local folder reports "Local folder: file.lrc"; that part is shown in the UI language.</summary>
+    private static string DisplaySource(string source)
+    {
+        var prefix = LocalFolderProvider.SourceName + ": ";
+        return source.StartsWith(prefix, StringComparison.Ordinal)
+            ? Strings.LocalFolderSource(source[prefix.Length..])
+            : source;
     }
 
     private void ClearLyrics()

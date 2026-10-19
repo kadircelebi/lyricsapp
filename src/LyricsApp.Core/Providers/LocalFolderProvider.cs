@@ -13,7 +13,10 @@ public sealed class LocalFolderProvider(string folder) : ILyricsProvider
         IgnoreInaccessible = true,
     };
 
-    public string Name => "Yerel klasör";
+    /// <summary>Provider name, also the start of <see cref="Lyrics.Source"/> ("Local folder: file.lrc"). The UI translates it.</summary>
+    public const string SourceName = "Local folder";
+
+    public string Name => SourceName;
 
     public string Folder { get; } = folder;
 

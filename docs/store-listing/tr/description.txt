@@ -1,0 +1,15 @@
+MrW Lyrics, çalan şarkının sözlerini kendiliğinden bulur ve şarkıyla birlikte satır satır gösterir. Üyelik, reklam ya da karmaşık ayar yok: müziğinizi açın, sözler gelsin.
+
+Spotify, tarayıcıda YouTube, Windows Medya Oynatıcısı ve Windows medya kontrollerinde görünen diğer uygulamalarla çalışır. Şarkıyı Windows'tan okur; ses kaydı yapmaz, mikrofon kullanmaz.
+
+Senkron sözlerde o an söylenen satır vurgulanır ve pencere kendiliğinden kayar. Karaoke odak modunda yalnızca söylenen satır ve çevresindeki satırlar görünür, diğerleri gizlenir. İsterseniz satır, söylendikçe soldan sağa dolar.
+
+Sadece sözler modunda pencere tamamen saydamlaşır ve sözler masaüstünüzde yüzer. Harflerin dışına yapılan tıklamalar arkadaki pencereye geçer; böylece çalışırken, oyun oynarken ya da video izlerken sözler ekranda kalır ama yolunuza çıkmaz. Bir satıra tıklayınca kontroller geri gelir.
+
+Görünümü size göre ayarlayın: yazı tipi, boyut, aktif ve diğer satırların rengi, gölge ya da parlama, arka plan opaklığı, her zaman üstte. Klasik, Karaoke sarı, Neon ve Sade hazır stillerinden birini de seçebilirsiniz. Sözler şarkının biraz önünde ya da gerisinde kalırsa zaman kaydırma ile yarım saniyelik adımlarla düzeltebilirsiniz.
+
+Bulunan sözler Müzik\Lyrics klasörüne .lrc veya .txt olarak kaydedilir. Aynı şarkıyı tekrar dinlediğinizde internete çıkılmaz. Kendi .lrc dosyalarınızı da bu klasöre koyabilirsiniz.
+
+Sözler LrcLib, Musixmatch, Genius ve lyrics.ovh gibi çevrimiçi kaynaklardan aranır. Bunun için yalnızca şarkının adı, sanatçısı, albümü ve süresi gönderilir. Hesap yoktur, kullanım verisi toplanmaz.
+
+Arayüz Türkçe ve İngilizcedir, Windows dilinize göre açılır.

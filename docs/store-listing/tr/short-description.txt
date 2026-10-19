@@ -1,0 +1,1 @@
+Çalan şarkının sözlerini kendiliğinden bulur ve şarkıyla birlikte satır satır gösterir. Karaoke odak, masaüstünde yüzen saydam mod ve tam görünüm özelleştirmesi. Üyelik ve reklam yok.

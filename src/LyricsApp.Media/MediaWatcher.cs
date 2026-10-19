@@ -11,7 +11,7 @@ public sealed record MediaTrack(string SourceApp, TrackInfo Track, IRandomAccess
 /// Listens to Windows' System Media Transport Controls (the media flyout data).
 /// Event-driven: no polling loop. Events fire on background threads.
 /// </summary>
-public sealed class MediaWatcher : IDisposable
+public sealed class MediaWatcher : IMediaSource
 {
     private static readonly TimeSpan PropertiesDebounce = TimeSpan.FromMilliseconds(400);
 

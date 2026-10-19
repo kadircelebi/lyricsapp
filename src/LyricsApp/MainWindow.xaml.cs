@@ -33,9 +33,18 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
-        var cache = new LocalFolderProvider(settings.LyricsFolder);
-        var service = new LyricsService(providers.Build(settings.EnabledProviders, cache), cache);
-        viewModel = new MainViewModel(settings, new MediaWatcher(), service, Dispatcher);
+        if (Demo.DemoMode.IsEnabled)
+        {
+            // Store screenshots: made-up song and lyrics, no network, nothing written to the lyrics folder.
+            var demoService = new LyricsService([Demo.DemoMode.CreateLyricsProvider()], cache: null);
+            viewModel = new MainViewModel(settings, Demo.DemoMode.CreateMediaSource(), demoService, Dispatcher);
+        }
+        else
+        {
+            var cache = new LocalFolderProvider(settings.LyricsFolder);
+            var service = new LyricsService(providers.Build(settings.EnabledProviders, cache), cache);
+            viewModel = new MainViewModel(settings, new MediaWatcher(), service, Dispatcher);
+        }
         viewModel.ActiveLineChanged += (_, index) => ScrollToLine(index);
         viewModel.PropertyChanged += OnViewModelPropertyChanged;
         settings.Display.PropertyChanged += OnDisplayPropertyChanged;

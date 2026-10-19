@@ -1,6 +1,7 @@
 <UserControl x:Class="LyricsApp.ColorField"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:LyricsApp"
              x:Name="Self">
     <StackPanel>
         <ItemsControl x:Name="Swatches">
@@ -35,7 +36,7 @@
             </Border>
             <TextBox x:Name="HexBox" Width="96" Padding="4,2" VerticalContentAlignment="Center"
                      Background="#FF2A2A32" Foreground="#FFF2F2F5" BorderBrush="#44FFFFFF" CaretBrush="White"
-                     FontFamily="Consolas" ToolTip="#AARRGGBB veya #RRGGBB"
+                     FontFamily="Consolas" ToolTip="{local:Loc HexToolTip}"
                      LostFocus="OnHexCommitted" KeyDown="OnHexKeyDown" />
         </StackPanel>
     </StackPanel>

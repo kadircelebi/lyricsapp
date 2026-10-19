@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="MainWindowTitle" xml:space="preserve">
+    <value>Lyrics</value>
+  </data>
+  <data name="AlwaysOnTop" xml:space="preserve">
+    <value>Always on top</value>
+  </data>
+  <data name="MenuLyricsOnly" xml:space="preserve">
+    <value>Lyrics only (transparent)</value>
+  </data>
+  <data name="MenuFocusMode" xml:space="preserve">
+    <value>Karaoke focus</value>
+  </data>
+  <data name="MenuLineFill" xml:space="preserve">
+    <value>Line fill effect</value>
+  </data>
+  <data name="RetrySearch" xml:space="preserve">
+    <value>Search for lyrics again</value>
+  </data>
+  <data name="OpenLyricsFolder" xml:space="preserve">
+    <value>Open lyrics folder</value>
+  </data>
+  <data name="MenuDisplaySettings" xml:space="preserve">
+    <value>Display settings…</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="ToolLyricsOnly" xml:space="preserve">
+    <value>Lyrics only (transparent window)</value>
+  </data>
+  <data name="ToolFocusMode" xml:space="preserve">
+    <value>Karaoke focus (nearby lines only)</value>
+  </data>
+  <data name="DisplaySettings" xml:space="preserve">
+    <value>Display settings</value>
+  </data>
+  <data name="Minimize" xml:space="preserve">
+    <value>Minimize</value>
+  </data>
+  <data name="OffsetMinus" xml:space="preserve">
+    <value>Delay lyrics (−0.5 s)</value>
+  </data>
+  <data name="OffsetLabelToolTip" xml:space="preserve">
+    <value>Time offset (click to reset)</value>
+  </data>
+  <data name="OffsetPlus" xml:space="preserve">
+    <value>Show lyrics earlier (+0.5 s)</value>
+  </data>
+  <data name="WaitingForTrack" xml:space="preserve">
+    <value>Waiting for a song</value>
+  </data>
+  <data name="StartPlaying" xml:space="preserve">
+    <value>Start playing music in any app.</value>
+  </data>
+  <data name="MediaSessionFailed" xml:space="preserve">
+    <value>Couldn't connect to the Windows media session: {0}</value>
+  </data>
+  <data name="Searching" xml:space="preserve">
+    <value>Searching for lyrics…</value>
+  </data>
+  <data name="Instrumental" xml:space="preserve">
+    <value>Instrumental track.</value>
+  </data>
+  <data name="NotFoundWithErrors" xml:space="preserve">
+    <value>No lyrics found (there may be a connection problem).</value>
+  </data>
+  <data name="NotFound" xml:space="preserve">
+    <value>No lyrics found for this song.</value>
+  </data>
+  <data name="OffsetSeconds" xml:space="preserve">
+    <value>{0} s</value>
+  </data>
+  <data name="LocalFolderSource" xml:space="preserve">
+    <value>Local folder: {0}</value>
+  </data>
+  <data name="SectionWindow" xml:space="preserve">
+    <value>WINDOW</value>
+  </data>
+  <data name="SettingsLyricsOnly" xml:space="preserve">
+    <value>Lyrics only: transparent window, clicks that miss the letters go through. Click a line to show the controls, double-click to leave the mode.</value>
+  </data>
+  <data name="BackgroundOpacity" xml:space="preserve">
+    <value>Background opacity:</value>
+  </data>
+  <data name="SectionKaraoke" xml:space="preserve">
+    <value>KARAOKE</value>
+  </data>
+  <data name="SettingsFocusMode" xml:space="preserve">
+    <value>Karaoke focus: only the active line and nearby lines</value>
+  </data>
+  <data name="ContextLines" xml:space="preserve">
+    <value>Lines shown before and after:</value>
+  </data>
+  <data name="SettingsLineFill" xml:space="preserve">
+    <value>Line fill effect (the active line fills from left to right as it is sung; uses a little more CPU while playing)</value>
+  </data>
+  <data name="SectionText" xml:space="preserve">
+    <value>TEXT</value>
+  </data>
+  <data name="Presets" xml:space="preserve">
+    <value>Presets</value>
+  </data>
+  <data name="PresetClassic" xml:space="preserve">
+    <value>Classic</value>
+  </data>
+  <data name="PresetKaraoke" xml:space="preserve">
+    <value>Karaoke yellow</value>
+  </data>
+  <data name="PresetNeon" xml:space="preserve">
+    <value>Neon</value>
+  </data>
+  <data name="PresetPlain" xml:space="preserve">
+    <value>Plain</value>
+  </data>
+  <data name="Font" xml:space="preserve">
+    <value>Font</value>
+  </data>
+  <data name="ActiveLineSize" xml:space="preserve">
+    <value>Active line size:</value>
+  </data>
+  <data name="ActiveLineColor" xml:space="preserve">
+    <value>Active line color</value>
+  </data>
+  <data name="InactiveLineColor" xml:space="preserve">
+    <value>Color of the other lines</value>
+  </data>
+  <data name="SectionShadow" xml:space="preserve">
+    <value>SHADOW</value>
+  </data>
+  <data name="ShadowEnabled" xml:space="preserve">
+    <value>Shadow / glow</value>
+  </data>
+  <data name="ShadowColor" xml:space="preserve">
+    <value>Shadow color</value>
+  </data>
+  <data name="ShadowBlur" xml:space="preserve">
+    <value>Softness:</value>
+  </data>
+  <data name="ShadowDepth" xml:space="preserve">
+    <value>Distance:</value>
+  </data>
+  <data name="ShadowDepthHint" xml:space="preserve">
+    <value>(0 = glow around the text)</value>
+  </data>
+  <data name="ShadowOpacity" xml:space="preserve">
+    <value>Intensity:</value>
+  </data>
+  <data name="HexToolTip" xml:space="preserve">
+    <value>#AARRGGBB or #RRGGBB</value>
+  </data>
+</root>

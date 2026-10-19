@@ -20,6 +20,12 @@ Belirli bir şarkıyı tek bir kaynakta denemek için (`lrclib`, `musixmatch`, `
 dotnet run --project tools/LyricsApp.Probe -- --provider musixmatch "Sanatçı" "Şarkı"
 ```
 
+Microsoft Store paketi (MSIX, x64 + ARM64, `artifacts\msix\` altına). Ayrıntılar ve kurulum: [docs/store-packaging.md](docs/store-packaging.md)
+
+```powershell
+.\tools\Packaging\Build-Msix.ps1
+```
+
 Testler:
 
 ```bash
@@ -32,9 +38,11 @@ dotnet test
 |---|---|
 | `src/LyricsApp.Core` | LRC ayrıştırıcı, başlık temizleyici, eşleştirici, sağlayıcılar (yerel klasör, LrcLib, Musixmatch, Genius, lyrics.ovh), `ProviderCatalog`, `LyricsService` |
 | `src/LyricsApp.Media` | `MediaWatcher`: olay tabanlı SMTC dinleyicisi (yoklama yok) |
-| `src/LyricsApp` | WPF arayüzü |
+| `src/LyricsApp` | WPF arayüzü. Metinler `Localization/` altında (`Strings.resx` İngilizce, `Strings.tr.resx` Türkçe) |
 | `tools/LyricsApp.Probe` | Canlı teşhis aracı |
+| `tools/Packaging` | MSIX derleme, test imzası ve Store görselleri betikleri |
 | `tests/LyricsApp.Core.Tests` | xUnit testleri |
+| `tests/LyricsApp.Tests` | Arayüz metinlerinin testleri (iki dilde de aynı anahtarlar) |
 
 ## Davranış
 
@@ -51,6 +59,8 @@ dotnet test
   - **Satır dolum efekti**: aktif satır söylendikçe soldan sağa dolar. Çalarken her karede yeniden çizim yaptığı için varsayılan olarak kapalıdır.
   - Yazı tipi, boyut, aktif ve diğer satır rengi, gölge (renk, yumuşaklık, uzaklık, yoğunluk), arka plan opaklığı ve hazır stiller (Klasik, Karaoke sarı, Neon, Sade).
 - Pencere kenarlıksızdır: başlıktan veya boş bir alandan sürükleyerek taşıyın, kenarlarından boyutlandırın. Sağ tık menüsünde tüm seçenekler bulunur.
-- Test için ayrı bir ayar klasörü kullanmak isterseniz `LYRICSAPP_SETTINGS_DIR` ortam değişkenini ayarlayın.
+- **Dil:** arayüz Türkçe ve İngilizcedir, Windows'un görüntüleme dilini izler: Windows dili Türkçeyse (`tr*`) Türkçe, başka her dilde İngilizce. Sayılar (yüzde, zaman kaydırma) Windows'un bölge biçimiyle yazılır. Uygulamada ayrı bir dil seçeneği yoktur.
+- Yeni bir arayüz metni hem `Strings.resx` hem `Strings.tr.resx` dosyasına eklenir (XAML'de `{local:Loc Anahtar}`, kodda `Strings.Anahtar`). İki dosyanın anahtarları aynı değilse `dotnet test` başarısız olur. Store açıklaması (manifest) `Localization/en-US` ve `Localization/tr-TR` altındaki `Resources.resw` dosyalarından gelir.
+- Test için ayrı bir ayar klasörü kullanmak isterseniz `LYRICSAPP_SETTINGS_DIR` ortam değişkenini ayarlayın. Dili zorlamak için (test ve Store ekran görüntüleri) `LYRICSAPP_LANGUAGE=en` veya `LYRICSAPP_LANGUAGE=tr` kullanın. Bu değişkenler yalnızca geliştirme içindir; Store'dan kurulan uygulama Windows'un dilini kullanır.
 - Ayarlar: `%APPDATA%\LyricsApp\settings.json`
 

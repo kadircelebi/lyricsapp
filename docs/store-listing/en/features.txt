@@ -1,0 +1,12 @@
+Detects the song that is playing: Spotify, YouTube in your browser, Windows Media Player and more
+Synced lyrics with the current line highlighted
+Karaoke focus: only the current line and its neighbours stay visible
+Transparent lyrics-only mode, clicks that miss the letters go through
+Line fill effect
+Font, size, colours, shadow and ready-made styles
+Always on top
+Time offset in half-second steps
+Lyrics are saved to Music\Lyrics, so replays need no internet
+Use your own .lrc files
+No audio recording, no account, no ads
+English and Turkish interface

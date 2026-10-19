@@ -1,0 +1,1 @@
+Finds the lyrics of the song you are playing and shows them line by line, in sync. Karaoke focus, a transparent mode that floats on your desktop, and full styling. No sign-up, no ads.
