@@ -44,5 +44,13 @@ dotnet test
 - İnternetten bulunan sözler `Müzik\Lyrics\Sanatçı - Şarkı.lrc` (veya `.txt`) olarak kaydedilir. Sonraki dinlemelerde ağa çıkılmaz. Kendi `.lrc` dosyalarınızı da bu klasöre koyabilirsiniz.
 - Senkron takip yalnızca söz senkronken, müzik çalarken ve pencere simge durumunda değilken çalışır (100 ms).
 - Zaman kaydırma: başlıktaki −/+ (0,5 sn adım). Sıfırlamak için değere tıklayın.
+- **Görünüm** (başlıktaki ⚙ veya sağ tık → Görünüm ayarları):
+  - **Her zaman üstte** (📌)
+  - **Sadece sözler** (👁): pencere tamamen saydamlaşır, yalnızca sözler kalır. Fareyi yalnızca harfler yakalar: harflerin dışındaki boş alanlara yapılan tıklamalar arkadaki pencereye geçer. Bir harfe tıklayınca başlık ve arka plan görünür, fare pencereden çıktıktan 1,5 sn sonra yeniden gizlenir. Harften tutup sürüklemek pencereyi taşır, çift tıklamak modu kapatır.
+  - **Karaoke odak** (☰): yalnızca aktif satır ile öncesindeki ve sonrasındaki N satır (varsayılan 2) görünür, uzaklaştıkça solar.
+  - **Satır dolum efekti**: aktif satır söylendikçe soldan sağa dolar. Çalarken her karede yeniden çizim yaptığı için varsayılan olarak kapalıdır.
+  - Yazı tipi, boyut, aktif ve diğer satır rengi, gölge (renk, yumuşaklık, uzaklık, yoğunluk), arka plan opaklığı ve hazır stiller (Klasik, Karaoke sarı, Neon, Sade).
+- Pencere kenarlıksızdır: başlıktan veya boş bir alandan sürükleyerek taşıyın, kenarlarından boyutlandırın. Sağ tık menüsünde tüm seçenekler bulunur.
+- Test için ayrı bir ayar klasörü kullanmak isterseniz `LYRICSAPP_SETTINGS_DIR` ortam değişkenini ayarlayın.
 - Ayarlar: `%APPDATA%\LyricsApp\settings.json`
 

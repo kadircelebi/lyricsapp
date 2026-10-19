@@ -1,24 +1,179 @@
-<Window x:Class="LyricsApp.MainWindow"
+﻿<Window x:Class="LyricsApp.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:LyricsApp"
         Title="Şarkı Sözleri"
-        Width="460" Height="640" MinWidth="300" MinHeight="260"
-        Background="{StaticResource WindowBackground}"
+        Width="460" Height="640" MinWidth="240" MinHeight="120"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent" ResizeMode="CanResize"
+        Topmost="{Binding Display.Topmost}"
         FontFamily="Segoe UI Variable Text, Segoe UI"
         TextOptions.TextFormattingMode="Ideal"
         UseLayoutRounding="True">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="0" ResizeBorderThickness="6" GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False" />
+    </WindowChrome.WindowChrome>
+
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+
+        <ContextMenu x:Key="WindowMenu">
+            <MenuItem Header="Her zaman üstte" IsCheckable="True" IsChecked="{Binding Display.Topmost}" />
+            <MenuItem Header="Sadece sözler (saydam)" IsCheckable="True" IsChecked="{Binding Display.LyricsOnly}" />
+            <MenuItem Header="Karaoke odak" IsCheckable="True" IsChecked="{Binding Display.FocusMode}" />
+            <MenuItem Header="Satır dolum efekti" IsCheckable="True" IsChecked="{Binding Display.LineFill}" />
+            <Separator />
+            <MenuItem Header="Sözleri yeniden ara" Click="OnRetryClick" />
+            <MenuItem Header="Söz klasörünü aç" Click="OnOpenFolderClick" />
+            <MenuItem Header="Görünüm ayarları…" Click="OnSettingsClick" />
+            <Separator />
+            <MenuItem Header="Kapat" Click="OnCloseClick" />
+        </ContextMenu>
     </Window.Resources>
 
-    <Grid>
+    <Grid x:Name="Root" ContextMenu="{StaticResource WindowMenu}"
+          MouseEnter="OnRootMouseEnter" MouseLeave="OnRootMouseLeave">
+        <Grid.Style>
+            <Style TargetType="Grid">
+                <!-- Nearly invisible fill keeps the whole window clickable/draggable. -->
+                <Setter Property="Background" Value="#01000000" />
+                <Style.Triggers>
+                    <!-- Lyrics-only: no fill at all. Windows passes clicks on fully transparent pixels of a layered
+                         window to whatever is behind, so only the drawn letters (and their shadow) catch the mouse. -->
+                    <MultiDataTrigger>
+                        <MultiDataTrigger.Conditions>
+                            <Condition Binding="{Binding Display.LyricsOnly}" Value="True" />
+                            <Condition Binding="{Binding IsChromeRevealed}" Value="False" />
+                        </MultiDataTrigger.Conditions>
+                        <Setter Property="Background" Value="{x:Null}" />
+                        <Setter Property="Cursor" Value="Hand" />
+                    </MultiDataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Grid.Style>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- Header: artwork, title, artist, tools -->
-        <Border Background="{StaticResource HeaderBackground}" Padding="12,10">
+        <!-- Window background (opacity adjustable; in lyrics-only mode shown only after clicking the text) -->
+        <Border Grid.RowSpan="2" CornerRadius="10" Background="{StaticResource WindowBackground}">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Opacity" Value="{Binding Display.BackgroundOpacity}" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Display.LyricsOnly}" Value="True">
+                            <Setter Property="Opacity" Value="0" />
+                        </DataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding Display.LyricsOnly}" Value="True" />
+                                <Condition Binding="{Binding IsChromeRevealed}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Opacity" Value="0.55" />
+                        </MultiDataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+        </Border>
+
+        <!-- Lyrics -->
+        <ScrollViewer x:Name="LyricsScroller" Grid.Row="1"
+                      PreviewMouseWheel="OnLyricsUserScroll" PreviewMouseDown="OnLyricsUserScroll">
+            <ScrollViewer.Style>
+                <Style TargetType="ScrollViewer">
+                    <!-- Hidden: still scrolls with the mouse wheel, without a light system scrollbar on the dark window. -->
+                    <Setter Property="VerticalScrollBarVisibility" Value="Hidden" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsFocusView}" Value="True">
+                            <Setter Property="VerticalScrollBarVisibility" Value="Disabled" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Display.LyricsOnly}" Value="True">
+                            <Setter Property="Grid.Row" Value="0" />
+                            <Setter Property="Grid.RowSpan" Value="2" />
+                            <Setter Property="VerticalScrollBarVisibility" Value="Hidden" />
+                        </DataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding Display.LyricsOnly}" Value="True" />
+                                <Condition Binding="{Binding IsFocusView}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="VerticalScrollBarVisibility" Value="Disabled" />
+                        </MultiDataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ScrollViewer.Style>
+
+            <ItemsControl x:Name="LyricsList" ItemsSource="{Binding Lines}" Margin="20,16">
+                <ItemsControl.Style>
+                    <Style TargetType="ItemsControl">
+                        <Setter Property="VerticalAlignment" Value="Top" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsFocusView}" Value="True">
+                                <Setter Property="VerticalAlignment" Value="Center" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ItemsControl.Style>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock x:Name="Line" Text="{Binding Text}" TextWrapping="Wrap" TextAlignment="Center" Margin="0,4"
+                                   FontFamily="{Binding DataContext.Display.FontFamilyValue, RelativeSource={RelativeSource AncestorType=Window}}"
+                                   FontSize="{Binding DataContext.Display.InactiveFontSize, RelativeSource={RelativeSource AncestorType=Window}}"
+                                   Foreground="{Binding DataContext.Display.InactiveBrush, RelativeSource={RelativeSource AncestorType=Window}}"
+                                   local:Animate.Opacity="{Binding Emphasis}" />
+                        <DataTemplate.Triggers>
+                            <!-- Plain (unsynced) lyrics: everything readable at full colour. -->
+                            <DataTrigger Binding="{Binding DataContext.IsSynced, RelativeSource={RelativeSource AncestorType=Window}}" Value="False">
+                                <Setter TargetName="Line" Property="Foreground" Value="{Binding DataContext.Display.ActiveBrush, RelativeSource={RelativeSource AncestorType=Window}}" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsHidden}" Value="True">
+                                <Setter TargetName="Line" Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                <Setter TargetName="Line" Property="Foreground" Value="{Binding DataContext.Display.ActiveBrush, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                <Setter TargetName="Line" Property="FontSize" Value="{Binding DataContext.Display.FontSize, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                <Setter TargetName="Line" Property="FontWeight" Value="SemiBold" />
+                                <Setter TargetName="Line" Property="Margin" Value="0,8" />
+                            </DataTrigger>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding IsActive}" Value="True" />
+                                    <Condition Binding="{Binding DataContext.Display.LineFill, RelativeSource={RelativeSource AncestorType=Window}}" Value="True" />
+                                </MultiDataTrigger.Conditions>
+                                <!-- Bound, not a resource: resources get frozen and the sweep could not move. -->
+                                <Setter TargetName="Line" Property="Foreground" Value="{Binding FillBrush, RelativeSource={RelativeSource AncestorType=Window}}" />
+                            </MultiDataTrigger>
+                        </DataTemplate.Triggers>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <TextBlock Grid.Row="1" Text="{Binding Status}" Foreground="{StaticResource SecondaryText}" FontSize="14"
+                   TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24"
+                   Visibility="{Binding HasStatus, Converter={StaticResource BoolToVisibility}}" />
+
+        <!-- Header: artwork, title, tools. Fades out in lyrics-only mode until hovered. -->
+        <Border x:Name="Header" Grid.Row="0" Padding="12,10,8,8" CornerRadius="10,10,0,0" Background="{StaticResource HeaderBackground}">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Opacity" Value="1" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Display.LyricsOnly}" Value="True">
+                            <Setter Property="Opacity" Value="0" />
+                            <Setter Property="IsHitTestVisible" Value="False" />
+                        </DataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding Display.LyricsOnly}" Value="True" />
+                                <Condition Binding="{Binding IsChromeRevealed}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Opacity" Value="1" />
+                            <Setter Property="IsHitTestVisible" Value="True" />
+                        </MultiDataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -26,7 +181,7 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <Border Width="52" Height="52" CornerRadius="6" Background="#FF2A2A32" ClipToBounds="True">
+                <Border Width="52" Height="52" CornerRadius="6" Background="#FF2A2A32" ClipToBounds="True" VerticalAlignment="Top">
                     <Grid>
                         <TextBlock Text="&#xE8D6;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="22"
                                    Foreground="{StaticResource DimText}" HorizontalAlignment="Center" VerticalAlignment="Center" />
@@ -43,50 +198,31 @@
                                TextTrimming="CharacterEllipsis" Margin="0,2,0,0" />
                 </StackPanel>
 
-                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                <StackPanel Grid.Column="2">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Style="{StaticResource ToolButton}" Content="&#xE72C;" ToolTip="Sözleri yeniden ara" Click="OnRetryClick" />
-                        <Button Style="{StaticResource ToolButton}" Content="&#xE838;" ToolTip="Söz klasörünü aç" Click="OnOpenFolderClick" />
-                        <ToggleButton x:Name="TopmostToggle" Style="{StaticResource ToolToggle}" Content="&#xE718;"
-                                      ToolTip="Her zaman üstte" Click="OnTopmostClick" />
+                        <ToggleButton Style="{StaticResource ToolToggle}" Content="&#xE718;" ToolTip="Her zaman üstte" AutomationProperties.Name="Her zaman üstte"
+                                      IsChecked="{Binding Display.Topmost}" />
+                        <ToggleButton Style="{StaticResource ToolToggle}" Content="&#xE890;" ToolTip="Sadece sözler (saydam pencere)" AutomationProperties.Name="Sadece sözler (saydam pencere)"
+                                      IsChecked="{Binding Display.LyricsOnly}" />
+                        <ToggleButton Style="{StaticResource ToolToggle}" Content="&#xE8FD;" ToolTip="Karaoke odak (yalnızca yakın satırlar)" AutomationProperties.Name="Karaoke odak (yalnızca yakın satırlar)"
+                                      IsChecked="{Binding Display.FocusMode}" />
+                        <Button Style="{StaticResource ToolButton}" Content="&#xE713;" ToolTip="Görünüm ayarları" AutomationProperties.Name="Görünüm ayarları" Click="OnSettingsClick" />
+                        <Button Style="{StaticResource ToolButton}" Content="&#xE921;" ToolTip="Simge durumuna küçült" AutomationProperties.Name="Simge durumuna küçült" Click="OnMinimizeClick" />
+                        <Button Style="{StaticResource ToolButton}" Content="&#xE8BB;" ToolTip="Kapat" AutomationProperties.Name="Kapat" Click="OnCloseClick" />
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
-                                Visibility="{Binding IsSynced, Converter={StaticResource BoolToVisibility}}">
-                        <Button Style="{StaticResource ToolButton}" Content="&#xE738;" Height="24" ToolTip="Sözleri geciktir (−0,5 sn)" Click="OnOffsetMinusClick" />
-                        <TextBlock Text="{Binding OffsetText}" Foreground="{StaticResource SecondaryText}" FontSize="11"
-                                   MinWidth="44" TextAlignment="Center" VerticalAlignment="Center" Cursor="Hand"
-                                   ToolTip="Zaman kaydırma (sıfırlamak için tıklayın)" MouseLeftButtonUp="OnOffsetResetClick" />
-                        <Button Style="{StaticResource ToolButton}" Content="&#xE710;" Height="24" ToolTip="Sözleri öne al (+0,5 sn)" Click="OnOffsetPlusClick" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Style="{StaticResource ToolButton}" Content="&#xE72C;" Height="24" ToolTip="Sözleri yeniden ara" AutomationProperties.Name="Sözleri yeniden ara" Click="OnRetryClick" />
+                        <Button Style="{StaticResource ToolButton}" Content="&#xE838;" Height="24" ToolTip="Söz klasörünü aç" AutomationProperties.Name="Söz klasörünü aç" Click="OnOpenFolderClick" />
+                        <StackPanel Orientation="Horizontal" Visibility="{Binding IsSynced, Converter={StaticResource BoolToVisibility}}">
+                            <Button Style="{StaticResource ToolButton}" Content="&#xE738;" Height="24" ToolTip="Sözleri geciktir (−0,5 sn)" AutomationProperties.Name="Sözleri geciktir (−0,5 sn)" Click="OnOffsetMinusClick" />
+                            <TextBlock x:Name="OffsetLabel" Text="{Binding OffsetText}" Foreground="{StaticResource SecondaryText}" FontSize="11"
+                                       MinWidth="44" TextAlignment="Center" VerticalAlignment="Center" Cursor="Hand"
+                                       ToolTip="Zaman kaydırma (sıfırlamak için tıklayın)" MouseLeftButtonUp="OnOffsetResetClick" />
+                            <Button Style="{StaticResource ToolButton}" Content="&#xE710;" Height="24" ToolTip="Sözleri öne al (+0,5 sn)" AutomationProperties.Name="Sözleri öne al (+0,5 sn)" Click="OnOffsetPlusClick" />
+                        </StackPanel>
                     </StackPanel>
                 </StackPanel>
             </Grid>
         </Border>
-
-        <!-- Lyrics -->
-        <ScrollViewer x:Name="LyricsScroller" Grid.Row="1" VerticalScrollBarVisibility="Auto"
-                      PreviewMouseWheel="OnLyricsUserScroll" PreviewMouseDown="OnLyricsUserScroll">
-            <ItemsControl x:Name="LyricsList" ItemsSource="{Binding Lines}" Margin="20,24">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock x:Name="Line" Text="{Binding Text}" TextWrapping="Wrap" TextAlignment="Center"
-                                   FontSize="18" Margin="0,5" Foreground="{StaticResource PrimaryText}" />
-                        <DataTemplate.Triggers>
-                            <DataTrigger Binding="{Binding DataContext.IsSynced, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
-                                <Setter TargetName="Line" Property="Foreground" Value="{StaticResource DimText}" />
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                <Setter TargetName="Line" Property="Foreground" Value="{StaticResource PrimaryText}" />
-                                <Setter TargetName="Line" Property="FontWeight" Value="SemiBold" />
-                                <Setter TargetName="Line" Property="FontSize" Value="22" />
-                            </DataTrigger>
-                        </DataTemplate.Triggers>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
-
-        <TextBlock Grid.Row="1" Text="{Binding Status}" Foreground="{StaticResource SecondaryText}" FontSize="14"
-                   TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24"
-                   Visibility="{Binding HasStatus, Converter={StaticResource BoolToVisibility}}" />
     </Grid>
 </Window>

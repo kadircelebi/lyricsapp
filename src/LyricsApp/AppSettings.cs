@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using LyricsApp.Core.Providers;
 
 namespace LyricsApp;
@@ -8,8 +9,11 @@ public sealed class AppSettings
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
 
+    /// <summary>%APPDATA%\LyricsApp, or LYRICSAPP_SETTINGS_DIR when set (handy for testing without touching real settings).</summary>
     public static string SettingsFolder { get; } =
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LyricsApp");
+        Environment.GetEnvironmentVariable("LYRICSAPP_SETTINGS_DIR") is { Length: > 0 } dir
+            ? dir
+            : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LyricsApp");
 
     private static string SettingsPath => Path.Combine(SettingsFolder, "settings.json");
 
@@ -22,6 +26,10 @@ public sealed class AppSettings
     /// </summary>
     public List<string> EnabledProviders { get; set; } = [.. ProviderCatalog.DefaultOrder];
 
+    public DisplaySettings Display { get; set; } = new();
+
+    /// <summary>Old location of the always-on-top flag (v0.1/v0.2); read once and moved into <see cref="Display"/>.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool Topmost { get; set; }
 
     /// <summary>Added to the player position; positive shows lines earlier.</summary>
@@ -37,7 +45,16 @@ public sealed class AppSettings
         try
         {
             if (File.Exists(SettingsPath))
-                return JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(SettingsPath)) ?? new AppSettings();
+            {
+                var loaded = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(SettingsPath)) ?? new AppSettings();
+                loaded.Display ??= new DisplaySettings();
+                if (loaded.Topmost)
+                {
+                    loaded.Display.Topmost = true;
+                    loaded.Topmost = false;
+                }
+                return loaded;
+            }
         }
         catch (Exception ex) when (ex is IOException or JsonException or UnauthorizedAccessException)
         {

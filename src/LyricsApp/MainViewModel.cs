@@ -13,6 +13,8 @@ namespace LyricsApp;
 public sealed class LineViewModel(TimeSpan? time, string text) : ObservableObject
 {
     private bool isActive;
+    private bool isHidden;
+    private double emphasis = 1.0;
 
     public TimeSpan? Time { get; } = time;
     public string Text { get; } = string.IsNullOrWhiteSpace(text) ? "♪" : text;
@@ -21,6 +23,20 @@ public sealed class LineViewModel(TimeSpan? time, string text) : ObservableObjec
     {
         get => isActive;
         set => Set(ref isActive, value);
+    }
+
+    /// <summary>Outside the karaoke focus window.</summary>
+    public bool IsHidden
+    {
+        get => isHidden;
+        set => Set(ref isHidden, value);
+    }
+
+    /// <summary>Target opacity: 1 for the active line, fading with distance in focus mode.</summary>
+    public double Emphasis
+    {
+        get => emphasis;
+        set => Set(ref emphasis, value);
     }
 }
 
@@ -59,6 +75,46 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
         watcher.TrackChanged += (_, track) => dispatcher.InvokeAsync(() => OnTrackChanged(track));
         watcher.PlaybackChanged += (_, state) => dispatcher.InvokeAsync(() => OnPlaybackChanged(state));
+
+        settings.Display.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName is nameof(DisplaySettings.FocusMode) or nameof(DisplaySettings.ContextLines))
+            {
+                OnPropertyChanged(nameof(IsFocusView));
+                UpdateLineStates();
+            }
+        };
+    }
+
+    public DisplaySettings Display => settings.Display;
+
+    private bool isChromeRevealed;
+
+    /// <summary>In lyrics-only mode: header and background temporarily shown after the text was clicked.</summary>
+    public bool IsChromeRevealed
+    {
+        get => isChromeRevealed;
+        set => Set(ref isChromeRevealed, value);
+    }
+
+    /// <summary>Karaoke focus applies only to synced lyrics; plain lyrics always show in full.</summary>
+    public bool IsFocusView => IsSynced && Display.FocusMode;
+
+    public bool IsPlaying => playback.IsPlaying;
+
+    /// <summary>0..1 progress through the active line, for the karaoke sweep.</summary>
+    public double GetActiveLineProgress()
+    {
+        if (!IsSynced || activeIndex < 0 || activeIndex >= syncedLines.Count) return 0;
+        var position = playback.GetPosition(DateTimeOffset.Now) + TimeSpan.FromSeconds(settings.OffsetSeconds);
+        var start = syncedLines[activeIndex].Time;
+        var end = activeIndex + 1 < syncedLines.Count
+            ? syncedLines[activeIndex + 1].Time
+            : start + TimeSpan.FromSeconds(4);
+        var length = (end - start).TotalSeconds;
+        // Long instrumental gaps: finish the sweep within a few seconds instead of crawling.
+        length = Math.Min(length, 8);
+        return length <= 0 ? 1 : Math.Clamp((position - start).TotalSeconds / length, 0, 1);
     }
 
     /// <summary>Raised when the highlighted line moves, so the view can scroll to it.</summary>
@@ -72,7 +128,14 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public bool HasStatus => !string.IsNullOrEmpty(Status);
     public string ProviderName { get => providerName; private set => Set(ref providerName, value); }
     public ImageSource? Thumbnail { get => thumbnail; private set => Set(ref thumbnail, value); }
-    public bool IsSynced { get => isSynced; private set => Set(ref isSynced, value); }
+    public bool IsSynced
+    {
+        get => isSynced;
+        private set
+        {
+            if (Set(ref isSynced, value)) OnPropertyChanged(nameof(IsFocusView));
+        }
+    }
     public int ActiveIndex => activeIndex;
 
     public string OffsetText => settings.OffsetSeconds == 0
@@ -186,6 +249,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
                 break;
         }
         ProviderName = search.Result is null ? string.Empty : search.Result.Lyrics.Source;
+        UpdateLineStates();
         UpdateTimer();
         UpdateActiveLine();
     }
@@ -202,7 +266,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
     private void OnPlaybackChanged(PlaybackState state)
     {
+        var wasPlaying = playback.IsPlaying;
         playback = state;
+        if (wasPlaying != state.IsPlaying) OnPropertyChanged(nameof(IsPlaying));
         UpdateTimer();
         UpdateActiveLine();
     }
@@ -227,7 +293,30 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         if (activeIndex >= 0 && activeIndex < Lines.Count) Lines[activeIndex].IsActive = false;
         activeIndex = index;
         if (index >= 0 && index < Lines.Count) Lines[index].IsActive = true;
+        UpdateLineStates();
         ActiveLineChanged?.Invoke(this, index);
+    }
+
+    /// <summary>Applies the karaoke focus window: hides far lines and fades the near ones by distance.</summary>
+    private void UpdateLineStates()
+    {
+        var focus = IsFocusView;
+        var context = Display.ContextLines;
+        for (var i = 0; i < Lines.Count; i++)
+        {
+            var line = Lines[i];
+            if (!focus)
+            {
+                line.IsHidden = false;
+                line.Emphasis = 1.0;
+                continue;
+            }
+
+            // Before the first line starts, preview the opening lines as "upcoming".
+            var distance = activeIndex < 0 ? i + 1 : Math.Abs(i - activeIndex);
+            line.IsHidden = distance > context;
+            line.Emphasis = distance == 0 ? 1.0 : Math.Max(0.25, 0.85 - 0.6 * distance / (context + 1.0));
+        }
     }
 
     private async Task LoadThumbnailAsync(MediaTrack track)
