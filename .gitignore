@@ -1,3 +1,6 @@
+# Private: prototypes, experiments, brand assets (never pushed)
+do_not_share/
+
 # Build output
 bin/
 obj/
