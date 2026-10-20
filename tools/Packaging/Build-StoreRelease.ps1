@@ -7,8 +7,9 @@
     - If dist\store holds a different version, it is moved to dist\old_versions\<that version>\ first.
       Rebuilding the same version replaces dist\store.
     - Builds the unsigned x64 + ARM64 .msix (the Store signs them) into dist\store\packages\.
-    - Copies the listing texts (docs\store-listing\<lang>\*.txt), the release texts
-      (docs\releases\<version>\*.txt) and the privacy policy.
+    - Copies the listing texts (docs\store-listing\<lang>\*.txt) and the privacy policy, and extracts the
+      release texts from docs\releases\<version>.md (the ```text blocks under "What's new" > EN/TR and
+      "Notes for certification"), checking the Partner Center length limits.
     - Generates poster/box art and captures the screenshots (tr + en) into dist\store\listing\<lang>\.
 
 .EXAMPLE
@@ -26,10 +27,34 @@ $root = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $manifest = Join-Path $root 'src\LyricsApp\Package.appxmanifest'
 $fullVersion = ([xml](Get-Content $manifest -Raw -Encoding UTF8)).Package.Identity.Version
 $version = ($fullVersion -split '\.')[0..2] -join '.'
-$releaseDocs = Join-Path $root "docs\releases\$version"
-if (-not (Test-Path (Join-Path $releaseDocs 'certification-notes.txt'))) {
-    throw "docs\releases\$version\certification-notes.txt is missing (see docs\releases\README.md)"
+$releaseNotes = Join-Path $root "docs\releases\$version.md"
+if (-not (Test-Path $releaseNotes)) {
+    throw "docs\releases\$version.md is missing (see docs\releases\README.md)"
 }
+$releaseText = (Get-Content $releaseNotes -Raw -Encoding UTF8) -replace "`r`n", "`n"
+
+# The first ```text block after the given heading (and sub-heading), or $null.
+function Get-ReleaseBlock([string] $heading, [string] $subHeading) {
+    $pattern = '(?ms)^## ' + [regex]::Escape($heading) + '[^\n]*\n'
+    if ($subHeading) { $pattern += '(?:(?!^## ).)*?^### ' + [regex]::Escape($subHeading) + '\s*\n' }
+    $pattern += '(?:(?!^#{1,3} ).)*?^```text\n(.*?)\n^```'
+    $match = [regex]::Match($releaseText, $pattern)
+    if ($match.Success) { $match.Groups[1].Value } else { $null }
+}
+
+$certificationNotes = Get-ReleaseBlock "Notes for certification"
+if (-not $certificationNotes) { throw "No Notes for certification block in docs\releases\$version.md" }
+if ($certificationNotes.Length -ge 2000) { throw "Notes for certification is $($certificationNotes.Length) characters (limit: under 2000)" }
+$whatsNew = @{}
+foreach ($lang in 'tr', 'en') {
+    $text = Get-ReleaseBlock "What's new" $lang.ToUpperInvariant()
+    if ($text) {
+        if ($text.Length -gt 1500) { throw "What's new ($lang) is $($text.Length) characters (limit: 1500)" }
+        $whatsNew[$lang] = $text
+    }
+}
+Write-Host ("Release texts: certification notes {0} chars; what's new tr {1}, en {2}" -f `
+    $certificationNotes.Length, $(if ($whatsNew.tr) { $whatsNew.tr.Length } else { '-' }), $(if ($whatsNew.en) { $whatsNew.en.Length } else { '-' }))
 
 $dist = Join-Path $root 'dist'
 $store = Join-Path $dist 'store'
@@ -68,10 +93,10 @@ if (-not $SkipPackages) {
 foreach ($lang in 'tr', 'en') {
     $dest = New-Item -ItemType Directory -Force (Join-Path $store "listing\$lang")
     Copy-Item (Join-Path $root "docs\store-listing\$lang\*.txt") $dest.FullName
-    $whatsNew = Join-Path $releaseDocs "whats-new.$lang.txt"
-    if (Test-Path $whatsNew) { Copy-Item $whatsNew (Join-Path $dest.FullName 'whats-new.txt') }
+    if ($whatsNew[$lang]) { Set-Content (Join-Path $dest.FullName 'whats-new.txt') $whatsNew[$lang] -Encoding UTF8 -NoNewline }
 }
-Copy-Item (Join-Path $releaseDocs 'certification-notes.txt') $store
+Set-Content (Join-Path $store 'certification-notes.txt') $certificationNotes -Encoding UTF8 -NoNewline
+Copy-Item $releaseNotes $store
 Copy-Item (Join-Path $root 'docs\store-listing\privacy-policy.md') $store
 
 # 4. Images.
@@ -91,6 +116,7 @@ Remove-Item (Join-Path $listing '_backdrops') -Recurse -Force -ErrorAction Silen
 MrW Lyrics $version - Microsoft Store gönderimi
 
 packages\                     Packages > yükle (x64 ve ARM64 .msix, ikisi birden)
+$version.md                    sürüm notu ve gönderim listesi (kaynağı docs\releases\$version.md)
 certification-notes.txt        Submission options > Notes for certification
 privacy-policy.md              sitede yayında: https://lyrics.mrwproject.com/privacy/ > Properties > Privacy policy URL
                                Destek / web sitesi: https://lyrics.mrwproject.com/contact/

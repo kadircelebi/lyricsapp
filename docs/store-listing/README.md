@@ -14,7 +14,7 @@ Store listings → (Türkçe / English) listeleme:
 | `<dil>/features.txt` | Product features (her satır bir madde) | en fazla 20 madde, her biri 200 karakter |
 | `<dil>/short-description.txt` | Short description | 1000 karakter |
 | `<dil>/keywords.txt` | Search terms / keywords (her satır bir kelime) | en fazla 7 |
-| (Release'e özel) `docs/releases/<sürüm>/whats-new.<dil>.txt` | What's new in this version | 1500 karakter, ilk sürümde yok |
+| (Release'e özel) `docs/releases/<sürüm>.md` → What's new → EN / TR | What's new in this version | 1500 karakter, ilk sürümde yok |
 
 Diğer alanlar (dosyası yok, elle doldurulur):
 

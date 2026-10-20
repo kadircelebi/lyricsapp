@@ -1,0 +1,78 @@
+name: release
+
+# Runs when a vX.Y.Z tag is pushed: runs the tests, then creates (or updates) the GitHub release with the
+# text from the "# GitHub release" section of docs/releases/X.Y.Z.md. No files are attached: the app is
+# distributed through the Microsoft Store.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (e.g. v1.1.0)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    # The UI tests need WPF, so Windows.
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+
+      - name: Version from the tag
+        id: ver
+        run: |
+          TAG="${{ inputs.tag || github.ref_name }}"
+          case "$TAG" in v[0-9]*.[0-9]*.[0-9]*) ;; *) echo "Tag must look like v1.2.3: $TAG" >&2; exit 1;; esac
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+
+      # The tag must match what was submitted to the Store (manifest Identity/@Version, last part 0).
+      - name: Check the manifest version
+        shell: pwsh
+        run: |
+          $manifest = [xml](Get-Content src/LyricsApp/Package.appxmanifest -Raw -Encoding UTF8)
+          $expected = "${{ steps.ver.outputs.version }}.0"
+          if ($manifest.Package.Identity.Version -ne $expected) {
+            throw "Package.appxmanifest has $($manifest.Package.Identity.Version), the tag needs $expected"
+          }
+
+      - name: Release notes
+        run: |
+          NOTES="docs/releases/${{ steps.ver.outputs.version }}.md"
+          test -f "$NOTES" || { echo "$NOTES is missing" >&2; exit 1; }
+          # The first ```markdown block under the "# GitHub release" heading.
+          awk '/^# GitHub release/ { s = 1; next }
+               s && /^# / { exit }
+               s && !b && /^```markdown/ { b = 1; next }
+               b && /^```[[:space:]]*$/ { exit }
+               b { print }' "$NOTES" | tr -d '\r' > release-notes.md
+          test -s release-notes.md || { echo "No \`\`\`markdown block under '# GitHub release' in $NOTES" >&2; exit 1; }
+          wc -c release-notes.md
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Tests
+        run: dotnet test LyricsApp.sln -c Release
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ steps.ver.outputs.tag }}"
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release edit "$TAG" --notes-file release-notes.md
+          else
+            gh release create "$TAG" --title "MrW Lyrics ${{ steps.ver.outputs.version }}" \
+              --verify-tag --notes-file release-notes.md
+          fi
