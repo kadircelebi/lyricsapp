@@ -1,6 +1,6 @@
 # 1.0.0: ilk Store gönderimi
 
-Durum: `dist/store` hazır (2026-10-19). Paketlerdeki kimlik Partner Center değerleri gelene kadar yer tutucu.
+Durum: **Store'da yayında (2026-10-20).** https://apps.microsoft.com/detail/9n5x2vhwxjwq · Etiket `v1.0.0`.
 
 ## Gönderimden önce
 
@@ -9,7 +9,7 @@ Durum: `dist/store` hazır (2026-10-19). Paketlerdeki kimlik Partner Center değ
 - [x] Listeleme metinleri tr + en (`docs/store-listing/`), ekran görüntüleri, poster ve kutu resmi tr + en (`dist/store/listing/`).
 - [x] İmzasız x64 + ARM64 paketleri (`dist/store/packages/`).
 - [x] **Partner Center kimliği** (2026-10-19) manifestte: Name `MrWProject.MrWLyrics`, Publisher `CN=BE7956F6-3D06-4F0C-B8B9-FAA5D1653D9F`, PublisherDisplayName `MrWProject`. PFN `MrWProject.MrWLyrics_1jmj08nda0ave` (Publisher karması ile doğrulandı), Store ID `9N5X2VHWXJWQ`.
-- [ ] Store ID sitenin panelinde: MrW Lyrics → Ana sayfa metinleri → Store alanı (`https://apps.microsoft.com/detail/9N5X2VHWXJWQ`). Bağlantı uygulama yayına girince çalışır.
+- [x] Store bağlantısı sitede ve README'de: Microsoft'un resmî "Get it from Microsoft" rozeti, `https://apps.microsoft.com/detail/9n5x2vhwxjwq`.
 - [x] Site yayında. Gizlilik politikası `https://lyrics.mrwproject.com/privacy/`, destek ve iletişim `https://lyrics.mrwproject.com/contact/`.
 - [ ] **Site yayını:** panelde MrW Lyrics → Önizleme → **Yayınla** (o zamana kadar adresler 404). Cloudflare Turnstile'a `lyrics.mrwproject.com` eklenmeli, yoksa iletişim formu çalışmaz.
 - [ ] Partner Center → Properties: Privacy policy URL ve Support/Website olarak yukarıdaki adresler.

@@ -1,6 +1,6 @@
 # Store listeleme metinleri
 
-Store ID `9N5X2VHWXJWQ` · PFN `MrWProject.MrWLyrics_1jmj08nda0ave` · Yayıncı `MrWProject` · Store sayfası (yayına girince): `https://apps.microsoft.com/detail/9N5X2VHWXJWQ`
+Store ID `9N5X2VHWXJWQ` · PFN `MrWProject.MrWLyrics_1jmj08nda0ave` · Yayıncı `MrWProject` · Store sayfası: `https://apps.microsoft.com/detail/9n5x2vhwxjwq` (2026-10-20'den beri yayında)
 
 Bu klasör Store listelemesinin **kaynağıdır** ve sürümden sürüme değişmez. Her sürümde `tools/Packaging/Build-StoreRelease.ps1` bu dosyaları `dist/store/listing/<dil>/` klasörüne kopyalar. Partner Center'a oradan yapıştırılır.
 
