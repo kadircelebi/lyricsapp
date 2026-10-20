@@ -8,5 +8,6 @@ Her zaman üstte
 Yarım saniyelik adımlarla zaman kaydırma
 Sözler Müzik\Lyrics klasörüne kaydedilir, tekrar dinlerken internet gerekmez
 Kendi .lrc dosyalarınızı kullanabilirsiniz
-Ses kaydı yok, hesap yok, reklam yok
+Yanlış adla yüklenmiş şarkıları tanır (Shazam, kapatılabilir)
+Mikrofon yok, hesap yok, reklam yok
 Türkçe ve İngilizce arayüz

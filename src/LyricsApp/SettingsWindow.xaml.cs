@@ -9,11 +9,13 @@ public partial class SettingsWindow : Window
 {
     private readonly DisplaySettings display;
 
-    public SettingsWindow(DisplaySettings display)
+    public SettingsWindow(AppSettings settings)
     {
         InitializeComponent();
-        this.display = display;
+        display = settings.Display;
         DataContext = display;
+        RecognizeBox.IsChecked = settings.RecognizeUnfoundSongs;
+        RecognizeBox.Click += (_, _) => settings.RecognizeUnfoundSongs = RecognizeBox.IsChecked == true;
         FontBox.ItemsSource = Fonts.SystemFontFamilies.Select(f => f.Source).Order(StringComparer.CurrentCulture).ToList();
         SourceInitialized += (_, _) => UseDarkTitleBar();
     }

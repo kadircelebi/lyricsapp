@@ -6,6 +6,7 @@ using System.Windows.Media;
 using System.Windows.Media.Effects;
 using LyricsApp.Core;
 using LyricsApp.Core.Providers;
+using LyricsApp.Core.Recognition;
 using LyricsApp.Media;
 
 namespace LyricsApp;
@@ -17,6 +18,7 @@ public partial class MainWindow : Window
 
     private readonly AppSettings settings = AppSettings.Load();
     private readonly ProviderCatalog providers = new(AppSettings.SettingsFolder);
+    private readonly System.Net.Http.HttpClient shazamHttp = ShazamClient.CreateHttpClient();
     private readonly MainViewModel viewModel;
     private readonly LinearGradientBrush fillBrush;
     private readonly DropShadowEffect shadow = new() { Direction = 315 };
@@ -37,13 +39,16 @@ public partial class MainWindow : Window
         {
             // Store screenshots: made-up song and lyrics, no network, nothing written to the lyrics folder.
             var demoService = new LyricsService([Demo.DemoMode.CreateLyricsProvider()], cache: null);
-            viewModel = new MainViewModel(settings, Demo.DemoMode.CreateMediaSource(), demoService, Dispatcher);
+            viewModel = new MainViewModel(settings, Demo.DemoMode.CreateMediaSource(), demoService, recognizer: null, Dispatcher);
         }
         else
         {
             var cache = new LocalFolderProvider(settings.LyricsFolder);
             var service = new LyricsService(providers.Build(settings.EnabledProviders, cache), cache);
-            viewModel = new MainViewModel(settings, new MediaWatcher(), service, Dispatcher);
+            var watcher = new MediaWatcher();
+            var recognizer = new ShazamRecognizer(new ShazamClient(shazamHttp),
+                ct => LoopbackAudio.ReadAsync(watcher.CurrentTrack?.SourceApp, ct));
+            viewModel = new MainViewModel(settings, watcher, service, recognizer, Dispatcher);
         }
         viewModel.ActiveLineChanged += (_, index) => ScrollToLine(index);
         viewModel.PropertyChanged += OnViewModelPropertyChanged;
@@ -76,6 +81,7 @@ public partial class MainWindow : Window
             StopFillRendering();
             viewModel.Dispose();
             providers.Dispose();
+            shazamHttp.Dispose();
         };
     }
 
@@ -151,7 +157,7 @@ public partial class MainWindow : Window
             settingsWindow.Activate();
             return;
         }
-        settingsWindow = new SettingsWindow(settings.Display) { Owner = this };
+        settingsWindow = new SettingsWindow(settings) { Owner = this };
         settingsWindow.Closed += (_, _) =>
         {
             settings.Save();

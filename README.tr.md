@@ -32,16 +32,18 @@
 - **Sadece sözler modu**: pencere tamamen saydamlaşır ve sözler masaüstünde yüzer. Harflerin dışına yapılan tıklamalar arkadaki pencereye geçer. Bir satıra tıklayınca kontroller geri gelir.
 - **Görünüm**: yazı tipi, boyut, renkler, gölge ya da parlama, arka plan opaklığı, her zaman üstte. Hazır stiller de var: Klasik, Karaoke sarı, Neon, Sade.
 - **Zaman kaydırma**: sözler şarkının önünde ya da gerisinde kalırsa yarım saniyelik adımlarla düzeltin.
+- **Başka adla yüklenmiş şarkıları da tanır**: hiçbir kaynakta söz bulunamazsa (örneğin başkasının adıyla yüklenmiş bir video) uygulama oynatıcıyı birkaç saniye dinler, Shazam'dan şarkının gerçek adını öğrenir ve yeniden arar. Yalnızca sesin parmak izi gönderilir, her şarkı için bir kez. Ayarlardan kapatılabilir.
 - **Tekrar dinlemede internet gerekmez**: bulunan sözler `Müzik\Lyrics` klasörüne `.lrc` / `.txt` olarak kaydedilir. Kendi `.lrc` dosyalarınızı da bu klasöre koyabilirsiniz.
 - **Türkçe ve İngilizce** arayüz, Windows dilinize göre açılır.
-- **Hafif ve gizliliğe saygılı**: hesap yok, telemetri yok, ses kaydı yok, sistem genelinde klavye ya da fare kancası yok.
+- **Hafif ve gizliliğe saygılı**: hesap yok, telemetri yok, mikrofon yok, sistem genelinde klavye ya da fare kancası yok. Ses yalnızca şarkı tanıma için dinlenir; kaydedilmez ve gönderilmez.
 
 ## Nasıl çalışır
 
-1. Uygulama Windows medya oturumunu (System Media Transport Controls, medya açılır penceresiyle aynı bilgi) dinler ve olaylarına tepki verir. Sürekli yoklama yapmaz, ses kaydetmez.
+1. Uygulama Windows medya oturumunu (System Media Transport Controls, medya açılır penceresiyle aynı bilgi) dinler ve olaylarına tepki verir. Sürekli yoklama yapmaz.
 2. Video sitelerinden gelen başlıklar aramadan önce temizlenir ("(Official Video)", "Sanatçı - Topic", "SanatçıVEVO" vb.).
 3. Sözler sırayla aranır: yerel klasörünüz, [LrcLib](https://lrclib.net), Musixmatch, Genius ve lyrics.ovh. Senkron söz önceliklidir; yalnızca düz metin bulunursa senkron sürüm için diğer kaynaklara sorulmaya devam edilir. Gönderilen tek bilgi şarkının adı, sanatçısı, albümü ve süresidir.
-4. Çalma konumu, oynatıcının bildirdiği son konumdan ileriye doğru hesaplanır. Böylece güncellemeler arasında da vurgulanan satır şarkıyla uyumlu kalır.
+4. Hiçbir şey bulunamazsa oynatıcının sesi 3 ile 12 saniye arası dinlenir (Windows 10 2004 ve sonrasında yalnızca oynatıcının kendi süreçleri), bellekte Shazam parmak izine çevrilir ve Shazam'a gönderilir. Tanınan adla yeniden aranır. Sözler oynatıcının bildirdiği adla kaydedilir, böylece şarkı bir daha çaldığında ne internet ne de dinleme gerekir.
+5. Çalma konumu, oynatıcının bildirdiği son konumdan ileriye doğru hesaplanır. Böylece güncellemeler arasında da vurgulanan satır şarkıyla uyumlu kalır.
 
 Şarkı sözleri bu üçüncü taraf servislerden gelir ve hakları sahiplerine aittir. Kaynaklar `%APPDATA%\LyricsApp\settings.json` dosyasındaki `EnabledProviders` listesinden kapatılabilir.
 

@@ -8,5 +8,6 @@ Always on top
 Time offset in half-second steps
 Lyrics are saved to Music\Lyrics, so replays need no internet
 Use your own .lrc files
-No audio recording, no account, no ads
+Recognizes songs uploaded under the wrong name (Shazam, can be turned off)
+No microphone, no account, no ads
 English and Turkish interface

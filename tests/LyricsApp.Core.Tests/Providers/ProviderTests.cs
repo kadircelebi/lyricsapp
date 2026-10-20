@@ -92,6 +92,34 @@ public class ProviderTests
     }
 
     [Fact]
+    public async Task Service_caches_under_the_save_as_name_even_for_a_local_hit()
+    {
+        var dir = Directory.CreateTempSubdirectory("lyricsapp-test-");
+        try
+        {
+            var cache = new LocalFolderProvider(dir.FullName);
+            var recognized = new TrackInfo("Real Artist", "Real Song");
+            var reported = new TrackInfo("Uploader", "Re-upload");
+            var online = new FakeProvider("A", new SyncedLyrics(LrcParser.Parse("[00:01.00]x"), "A"));
+
+            await new LyricsService([cache, online], cache).FindAsync(recognized, CancellationToken.None, saveAs: reported);
+            Assert.True(File.Exists(Path.Combine(dir.FullName, "Uploader - Re-upload.lrc")));
+            Assert.False(File.Exists(Path.Combine(dir.FullName, "Real Artist - Real Song.lrc")));
+
+            // Already cached under its own name: the local hit is copied to the reported name too.
+            await cache.SaveAsync(recognized, new SyncedLyrics(LrcParser.Parse("[00:01.00]y"), "A"), CancellationToken.None);
+            var other = new TrackInfo("Another Uploader", "Copy");
+            var hit = await new LyricsService([cache], cache).FindAsync(recognized, CancellationToken.None, saveAs: other);
+            Assert.Equal(cache.Name, hit.ProviderName);
+            Assert.True(File.Exists(Path.Combine(dir.FullName, "Another Uploader - Copy.lrc")));
+        }
+        finally
+        {
+            dir.Delete(recursive: true);
+        }
+    }
+
+    [Fact]
     public async Task Service_falls_back_to_plain_when_no_synced_exists()
     {
         var service = new LyricsService([new FakeProvider("A", null), new FakeProvider("B", new PlainLyrics("text", "B"))], cache: null);

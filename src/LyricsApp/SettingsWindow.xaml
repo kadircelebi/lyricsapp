@@ -125,6 +125,13 @@
                 </TextBlock>
                 <Slider Minimum="0" Maximum="1" SmallChange="0.05" Value="{Binding ShadowOpacity}" />
             </StackPanel>
+
+            <TextBlock Text="{local:Loc SectionRecognition}" Style="{StaticResource Section}" />
+            <CheckBox x:Name="RecognizeBox">
+                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource PrimaryText}" Text="{local:Loc SettingsRecognizeUnfound}" />
+            </CheckBox>
+            <TextBlock TextWrapping="Wrap" Margin="22,2,0,0" FontSize="12" Foreground="{StaticResource DimText}"
+                       Text="{local:Loc RecognizeUnfoundHint}" />
         </StackPanel>
     </ScrollViewer>
 </Window>

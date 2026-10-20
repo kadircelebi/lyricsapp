@@ -7,6 +7,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using LyricsApp.Core;
 using LyricsApp.Core.Providers;
+using LyricsApp.Core.Recognition;
 using LyricsApp.Media;
 
 namespace LyricsApp;
@@ -46,6 +47,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private readonly AppSettings settings;
     private readonly IMediaSource watcher;
     private readonly LyricsService lyricsService;
+    private readonly ITrackRecognizer? recognizer;
     private readonly Dispatcher dispatcher;
     private readonly DispatcherTimer syncTimer;
 
@@ -55,6 +57,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private TrackInfo? currentQuery;
     private bool isWindowVisible = true;
 
+    // Songs already sent to recognition this run, so a song Shazam cannot name is not listened to again and again.
+    private readonly HashSet<string> recognitionTried = [];
+    private TrackInfo? pendingRecognition;
+
     private string title = Strings.WaitingForTrack;
     private string artist = string.Empty;
     private string status = Strings.StartPlaying;
@@ -63,11 +69,13 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private bool isSynced;
     private int activeIndex = -1;
 
-    public MainViewModel(AppSettings settings, IMediaSource watcher, LyricsService lyricsService, Dispatcher dispatcher)
+    /// <param name="recognizer">Last resort when no source has the lyrics; null turns recognition off (demo mode).</param>
+    public MainViewModel(AppSettings settings, IMediaSource watcher, LyricsService lyricsService, ITrackRecognizer? recognizer, Dispatcher dispatcher)
     {
         this.settings = settings;
         this.watcher = watcher;
         this.lyricsService = lyricsService;
+        this.recognizer = recognizer;
         this.dispatcher = dispatcher;
 
         // Runs only while synced lyrics are on screen and the player is playing.
@@ -171,7 +179,12 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
     public void ResetOffset() => AdjustOffset(-settings.OffsetSeconds);
 
-    public Task RetryAsync() => currentQuery is null ? watcher.RefreshAsync() : SearchAsync(currentQuery);
+    public Task RetryAsync()
+    {
+        if (currentQuery is null) return watcher.RefreshAsync();
+        recognitionTried.Remove(RecognitionKey(currentQuery));
+        return SearchAsync(currentQuery);
+    }
 
     public void OpenLyricsFolder()
     {
@@ -183,6 +196,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     {
         searchCts?.Cancel();
         ClearLyrics();
+        pendingRecognition = null;
 
         if (track is null)
         {
@@ -227,6 +241,90 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
         foreach (var error in search.Errors) Debug.WriteLine(error);
 
+        if (search.Result is null && CanRecognize(query))
+        {
+            // Last resort: name the song from its audio. Waits for playback when the player is paused.
+            if (playback.IsPlaying) await RecognizeAsync(query);
+            else
+            {
+                pendingRecognition = query;
+                Status = search.Errors.Count > 0 ? Strings.NotFoundWithErrors : Strings.NotFound;
+            }
+            return;
+        }
+        ShowResult(search, recognized: false);
+    }
+
+    private bool CanRecognize(TrackInfo query) =>
+        recognizer is not null && settings.RecognizeUnfoundSongs && !query.IsEmpty
+        && !recognitionTried.Contains(RecognitionKey(query));
+
+    private static string RecognitionKey(TrackInfo track) =>
+        $"{TrackMatcher.Normalize(track.Artist)}\n{TrackMatcher.Normalize(track.Title)}";
+
+    // Title equal and artist matching: the recognised name is the one the player already reported.
+    private const int SameSongScore = 8;
+
+    /// <summary>Listens to the player for a few seconds, asks Shazam what it is, and searches again under that name.</summary>
+    private async Task RecognizeAsync(TrackInfo query)
+    {
+        if (recognizer is null) return;
+        searchCts?.Cancel();
+        var cts = searchCts = new CancellationTokenSource();
+        recognitionTried.Add(RecognitionKey(query));
+        ClearLyrics();
+        Status = Strings.Recognizing;
+
+        TrackInfo? recognized;
+        try
+        {
+            recognized = await Task.Run(() => recognizer.RecognizeAsync(cts.Token), cts.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            return;
+        }
+        catch (Exception ex)
+        {
+            // Unofficial endpoint, no audio device, capture refused: recognition just gives up.
+            Debug.WriteLine($"Recognition: {ex.Message}");
+            recognized = null;
+        }
+        if (cts.IsCancellationRequested) return;
+
+        // Shazam named the same song we already searched for: the sources simply do not have it.
+        if (recognized is null || TrackMatcher.Score(query with { Duration = null }, recognized) >= SameSongScore)
+        {
+            Status = Strings.NotFound;
+            return;
+        }
+
+        LyricsSearchResult search;
+        try
+        {
+            // Keep the player's duration: it tells a re-upload's long version apart from the album track.
+            var lookup = recognized with { Duration = query.Duration };
+            search = await Task.Run(() => lyricsService.FindAsync(lookup, cts.Token, saveAs: query), cts.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            return;
+        }
+        if (cts.IsCancellationRequested) return;
+        foreach (var error in search.Errors) Debug.WriteLine(error);
+
+        if (search.Result is null)
+        {
+            Status = Strings.RecognizedNotFound(recognized.ToString());
+            return;
+        }
+        Title = recognized.Title;
+        Artist = recognized.Artist;
+        ShowResult(search, recognized: true);
+    }
+
+    private void ShowResult(LyricsSearchResult search, bool recognized)
+    {
         switch (search.Result?.Lyrics)
         {
             case SyncedLyrics synced:
@@ -249,7 +347,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
                     : Strings.NotFound;
                 break;
         }
-        ProviderName = search.Result is null ? string.Empty : DisplaySource(search.Result.Lyrics.Source);
+        var source = search.Result is null ? string.Empty : DisplaySource(search.Result.Lyrics.Source);
+        ProviderName = recognized && source.Length > 0 ? Strings.RecognizedSource(source) : source;
         UpdateLineStates();
         UpdateTimer();
         UpdateActiveLine();
@@ -281,6 +380,12 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         if (wasPlaying != state.IsPlaying) OnPropertyChanged(nameof(IsPlaying));
         UpdateTimer();
         UpdateActiveLine();
+
+        if (state.IsPlaying && pendingRecognition is { } pending && pending == currentQuery)
+        {
+            pendingRecognition = null;
+            _ = RecognizeAsync(pending);
+        }
     }
 
     private void UpdateTimer()

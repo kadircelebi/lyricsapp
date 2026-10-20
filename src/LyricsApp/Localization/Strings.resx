@@ -87,6 +87,24 @@
   <data name="LocalFolderSource" xml:space="preserve">
     <value>Local folder: {0}</value>
   </data>
+  <data name="Recognizing" xml:space="preserve">
+    <value>Lyrics not found. Recognizing the song from its sound…</value>
+  </data>
+  <data name="RecognizedNotFound" xml:space="preserve">
+    <value>Recognized as {0}, but no lyrics were found.</value>
+  </data>
+  <data name="RecognizedSource" xml:space="preserve">
+    <value>{0} (recognized by Shazam)</value>
+  </data>
+  <data name="SectionRecognition" xml:space="preserve">
+    <value>SONG RECOGNITION</value>
+  </data>
+  <data name="SettingsRecognizeUnfound" xml:space="preserve">
+    <value>Recognize songs whose lyrics are not found (Shazam)</value>
+  </data>
+  <data name="RecognizeUnfoundHint" xml:space="preserve">
+    <value>Only when no source has the lyrics, the app listens to the player for a few seconds (up to 12) and sends a fingerprint of the sound to Shazam to learn the real song name. The sound itself is not recorded or sent. This happens once per song; the lyrics found are saved under the name the player shows.</value>
+  </data>
   <data name="SectionWindow" xml:space="preserve">
     <value>WINDOW</value>
   </data>

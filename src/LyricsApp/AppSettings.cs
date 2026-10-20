@@ -26,6 +26,12 @@ public sealed class AppSettings
     /// </summary>
     public List<string> EnabledProviders { get; set; } = [.. ProviderCatalog.DefaultOrder];
 
+    /// <summary>
+    /// When no source has the lyrics, listen to the player for a few seconds and ask Shazam for the real song name.
+    /// On by default; the settings window explains what is sent.
+    /// </summary>
+    public bool RecognizeUnfoundSongs { get; set; } = true;
+
     public DisplaySettings Display { get; set; } = new();
 
     /// <summary>Old location of the always-on-top flag (v0.1/v0.2); read once and moved into <see cref="Display"/>.</summary>

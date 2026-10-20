@@ -87,6 +87,24 @@
   <data name="LocalFolderSource" xml:space="preserve">
     <value>Yerel klasör: {0}</value>
   </data>
+  <data name="Recognizing" xml:space="preserve">
+    <value>Sözler bulunamadı. Şarkı sesinden tanınıyor…</value>
+  </data>
+  <data name="RecognizedNotFound" xml:space="preserve">
+    <value>{0} olarak tanındı ama söz bulunamadı.</value>
+  </data>
+  <data name="RecognizedSource" xml:space="preserve">
+    <value>{0} (Shazam ile tanındı)</value>
+  </data>
+  <data name="SectionRecognition" xml:space="preserve">
+    <value>ŞARKI TANIMA</value>
+  </data>
+  <data name="SettingsRecognizeUnfound" xml:space="preserve">
+    <value>Sözleri bulunamayan şarkıları tanı (Shazam)</value>
+  </data>
+  <data name="RecognizeUnfoundHint" xml:space="preserve">
+    <value>Yalnızca hiçbir kaynakta söz bulunamazsa uygulama oynatıcıyı birkaç saniye (en fazla 12) dinler ve şarkının gerçek adını öğrenmek için sesin parmak izini Shazam'a gönderir. Sesin kendisi kaydedilmez ve gönderilmez. Her şarkı için bir kez yapılır; bulunan sözler oynatıcının gösterdiği adla kaydedilir.</value>
+  </data>
   <data name="SectionWindow" xml:space="preserve">
     <value>PENCERE</value>
   </data>
