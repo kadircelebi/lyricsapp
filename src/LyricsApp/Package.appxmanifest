@@ -15,7 +15,7 @@
   <Identity
     Name="MrWProject.MrWLyrics"
     Publisher="CN=BE7956F6-3D06-4F0C-B8B9-FAA5D1653D9F"
-    Version="1.1.0.0" />
+    Version="1.1.1.0" />
 
   <Properties>
     <!-- DisplayName is the name reserved in Partner Center. -->
