@@ -61,7 +61,7 @@ Kalıcı listeleme metinleri (açıklama, özellikler, anahtar kelimeler) ve giz
 5. `.\tools\Packaging\Build-StoreRelease.ps1` → `dist/store`. Ekran görüntülerine göz at.
 6. Paketli uygulamayı yerelde bir kez dene (bkz. `docs/store-packaging.md`).
 7. Partner Center: paketleri yükle, metinleri ve görselleri `dist/store/README.txt` dosyasına göre yerleştir.
-8. Store sürümü yayınlayınca sürüm commit'ini etiketleyip etiketi push et: `git tag v<sürüm>` ve `git push origin v<sürüm>`. `.github/workflows/release.yml` testleri çalıştırır, etiketin manifestteki sürümle (`<sürüm>.0`) aynı olduğunu denetler ve `# GitHub release` bölümündeki ` ```markdown ` bloğuyla GitHub release'i açar (varsa metnini günceller). Release'e dosya eklenmez; uygulama Store'dan dağıtılır. Yeniden çalıştırmak için: Actions → release → Run workflow, `tag` = `v<sürüm>`.
+8. Sürüm commit'ini etiketleyip etiketi push et (sürüm çıkarılırken, Store onayını beklemeden): `git tag v<sürüm>` ve `git push origin main v<sürüm>`. `.github/workflows/release.yml` testleri çalıştırır, etiketin manifestteki sürümle (`<sürüm>.0`) aynı olduğunu denetler ve `# GitHub release` bölümündeki ` ```markdown ` bloğuyla GitHub release'i açar (varsa metnini günceller). Release'e dosya eklenmez; uygulama Store'dan dağıtılır. Yeniden çalıştırmak için: Actions → release → Run workflow, `tag` = `v<sürüm>`.
 
 ## GitHub release
 
