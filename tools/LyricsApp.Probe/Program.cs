@@ -5,6 +5,7 @@
 //   ... -- --provider musixmatch "Artist" "Title"           -> ask one provider only
 //          (lrclib, musixmatch, genius, lyricsovh)
 //   ... -- --recognize                                       -> name what is playing via Shazam, then search for that
+//   ... -- --recognize --source-app SomeId                   -> as if the media session reported that app id
 using System.Diagnostics;
 using System.Globalization;
 using LyricsApp.Core;
@@ -15,10 +16,12 @@ using LyricsApp.Media;
 var positional = new List<string>();
 string? onlyProvider = null;
 var recognize = false;
+string? sourceAppOverride = null;
 for (var i = 0; i < args.Length; i++)
 {
     if (args[i] == "--provider" && i + 1 < args.Length) onlyProvider = args[++i];
     else if (args[i] == "--recognize") recognize = true;
+    else if (args[i] == "--source-app" && i + 1 < args.Length) sourceAppOverride = args[++i];
     else positional.Add(args[i]);
 }
 if (onlyProvider is not null && (!ProviderCatalog.IsKnown(onlyProvider) || ProviderCatalog.Local.Equals(onlyProvider, StringComparison.OrdinalIgnoreCase)))
@@ -54,6 +57,7 @@ else
 
 if (recognize)
 {
+    if (sourceAppOverride is not null) sourceApp = sourceAppOverride;
     var pid = LoopbackAudio.FindPlayerProcess(sourceApp);
     Console.WriteLine($"Capture       : {(pid is null ? "whole system output" : $"process tree of pid {pid}")}");
     using var shazamHttp = ShazamClient.CreateHttpClient();

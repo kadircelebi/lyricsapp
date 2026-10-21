@@ -33,8 +33,8 @@
   <data name="OpenLyricsFolder" xml:space="preserve">
     <value>Open lyrics folder</value>
   </data>
-  <data name="MenuDisplaySettings" xml:space="preserve">
-    <value>Display settings…</value>
+  <data name="MenuSettings" xml:space="preserve">
+    <value>Settings…</value>
   </data>
   <data name="Close" xml:space="preserve">
     <value>Close</value>
@@ -45,8 +45,8 @@
   <data name="ToolFocusMode" xml:space="preserve">
     <value>Karaoke focus (nearby lines only)</value>
   </data>
-  <data name="DisplaySettings" xml:space="preserve">
-    <value>Display settings</value>
+  <data name="Settings" xml:space="preserve">
+    <value>Settings</value>
   </data>
   <data name="Minimize" xml:space="preserve">
     <value>Minimize</value>

@@ -14,8 +14,10 @@ public partial class SettingsWindow : Window
         InitializeComponent();
         display = settings.Display;
         DataContext = display;
+        // Checked/Unchecked rather than Click, so a change made through UI Automation (screen readers) counts too.
         RecognizeBox.IsChecked = settings.RecognizeUnfoundSongs;
-        RecognizeBox.Click += (_, _) => settings.RecognizeUnfoundSongs = RecognizeBox.IsChecked == true;
+        RecognizeBox.Checked += (_, _) => settings.RecognizeUnfoundSongs = true;
+        RecognizeBox.Unchecked += (_, _) => settings.RecognizeUnfoundSongs = false;
         FontBox.ItemsSource = Fonts.SystemFontFamilies.Select(f => f.Source).Order(StringComparer.CurrentCulture).ToList();
         SourceInitialized += (_, _) => UseDarkTitleBar();
     }

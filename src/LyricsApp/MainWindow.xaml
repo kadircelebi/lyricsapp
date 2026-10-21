@@ -25,7 +25,7 @@
             <Separator />
             <MenuItem Header="{local:Loc RetrySearch}" Click="OnRetryClick" />
             <MenuItem Header="{local:Loc OpenLyricsFolder}" Click="OnOpenFolderClick" />
-            <MenuItem Header="{local:Loc MenuDisplaySettings}" Click="OnSettingsClick" />
+            <MenuItem Header="{local:Loc MenuSettings}" Click="OnSettingsClick" />
             <Separator />
             <MenuItem Header="{local:Loc Close}" Click="OnCloseClick" />
         </ContextMenu>
@@ -207,7 +207,7 @@
                                       IsChecked="{Binding Display.LyricsOnly}" />
                         <ToggleButton Style="{StaticResource ToolToggle}" Content="&#xE8FD;" ToolTip="{local:Loc ToolFocusMode}" AutomationProperties.Name="{local:Loc ToolFocusMode}"
                                       IsChecked="{Binding Display.FocusMode}" />
-                        <Button Style="{StaticResource ToolButton}" Content="&#xE713;" ToolTip="{local:Loc DisplaySettings}" AutomationProperties.Name="{local:Loc DisplaySettings}"
+                        <Button Style="{StaticResource ToolButton}" Content="&#xE713;" ToolTip="{local:Loc Settings}" AutomationProperties.Name="{local:Loc Settings}"
                                 AutomationProperties.AutomationId="SettingsButton" Click="OnSettingsClick" />
                         <Button Style="{StaticResource ToolButton}" Content="&#xE921;" ToolTip="{local:Loc Minimize}" AutomationProperties.Name="{local:Loc Minimize}" Click="OnMinimizeClick" />
                         <Button Style="{StaticResource ToolButton}" Content="&#xE8BB;" ToolTip="{local:Loc Close}" AutomationProperties.Name="{local:Loc Close}" Click="OnCloseClick" />

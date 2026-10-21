@@ -76,11 +76,18 @@ public static class LoopbackAudio
         return true;
     }
 
-    /// <summary>The root process of the player, found from the media session's AppUserModelId.</summary>
+    /// <summary>
+    /// The root process of the player, found from the media session's AppUserModelId. When the id names no
+    /// process (Edge, for example, reports a per-profile id), the only process playing sound right now.
+    /// </summary>
     public static int? FindPlayerProcess(string? sourceApp)
     {
         if (string.IsNullOrWhiteSpace(sourceApp)) return null;
+        return FindByAppId(sourceApp) ?? FindOnlyAudibleProcess();
+    }
 
+    private static int? FindByAppId(string sourceApp)
+    {
         IEnumerable<Process> candidates;
         var bang = sourceApp.IndexOf('!');
         if (bang > 0)
@@ -117,6 +124,42 @@ public static class LoopbackAudio
             }
         }
         return best;
+    }
+
+    /// <summary>
+    /// The process behind the one audio session on the default speakers that is making sound, sampled a few
+    /// times over a moment. Null when none or several are audible: then nobody can tell which is the player.
+    /// </summary>
+    private static int? FindOnlyAudibleProcess()
+    {
+        try
+        {
+            using var enumerator = new MMDeviceEnumerator();
+            if (!enumerator.TryGetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia, out var device)) return null;
+            using (device)
+            {
+                var sessions = device.AudioSessionManager;
+                var audible = new HashSet<uint>();
+                var self = (uint)Environment.ProcessId;
+                for (var sample = 0; sample < 5; sample++)
+                {
+                    sessions.RefreshSessions();
+                    var all = sessions.Sessions;
+                    for (var i = 0; i < all.Count; i++)
+                    {
+                        var session = all[i];
+                        if (session.IsSystemSoundsSession || session.GetProcessID == 0 || session.GetProcessID == self) continue;
+                        if (session.AudioMeterInformation.MasterPeakValue > 0.001f) audible.Add(session.GetProcessID);
+                    }
+                    Thread.Sleep(60);
+                }
+                return audible.Count == 1 ? (int)audible.First() : null;
+            }
+        }
+        catch (Exception ex) when (ex is COMException or InvalidOperationException)
+        {
+            return null; // No audio device or sessions not readable: fall back to the whole output.
+        }
     }
 
     private static string? PackageFamilyName(Process process)
