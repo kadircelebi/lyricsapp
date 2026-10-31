@@ -3,7 +3,7 @@
 //   dotnet run --project tools/LyricsApp.Probe              -> use what is playing now
 //   dotnet run --project tools/LyricsApp.Probe -- "Artist" "Title" [durationSeconds]
 //   ... -- --provider musixmatch "Artist" "Title"           -> ask one provider only
-//          (lrclib, musixmatch, genius, lyricsovh)
+//          (lrclib, musixmatch, youtubemusic, genius, lyricsovh)
 //   ... -- --recognize                                       -> name what is playing via Shazam, then search for that
 //   ... -- --recognize --source-app SomeId                   -> as if the media session reported that app id
 using System.Diagnostics;

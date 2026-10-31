@@ -1,6 +1,6 @@
 # MrW Lyrics: Gizlilik Politikası / Privacy Policy
 
-Son güncelleme / Last updated: 2026-10-20
+Son güncelleme / Last updated: 2026-10-31
 
 ## Türkçe
 
@@ -10,7 +10,7 @@ MrW Lyrics, Windows'ta çalan şarkının sözlerini gösteren bir masaüstü uy
 
 **Şarkı tanıma (sürüm 1.1 ve sonrası).** Hiçbir söz kaynağı şarkıyı bulamazsa uygulama, şarkının gerçek adını öğrenmek için oynatıcının sesini birkaç saniye (en fazla 12 saniye) dinler. Mümkünse yalnızca çalan uygulamanın sesi alınır, değilse bilgisayarın ses çıkışı. Ses diske yazılmaz ve gönderilmez: bellekte yalnızca bir parmak izi (sesin hangi anda hangi frekansta güçlendiğini gösteren, sesin geri elde edilemediği bir özet) hesaplanır ve Shazam'a (Apple) gönderilir. Her istekte rastgele bir kimlik kullanılır. Bu her şarkı için bir kez yapılır. Ayarlar penceresinden kapatılabilir.
 
-**Gönderilen bilgiler.** Sözleri bulmak için şarkının adı, sanatçısı, albümü ve süresi şu söz kaynaklarına gönderilir: LrcLib (lrclib.net), Musixmatch, Genius ve lyrics.ovh (arama için Deezer'ı kullanır). Şarkı tanıma açıksa ve sözler bulunamazsa sesin parmak izi Shazam'a gönderilir (yukarıya bakın). Bu servisler isteği işlerken IP adresiniz gibi standart bağlantı bilgilerini görebilir; kendi gizlilik politikaları geçerlidir. Başka hiçbir bilgi gönderilmez.
+**Gönderilen bilgiler.** Sözleri bulmak için şarkının adı, sanatçısı, albümü ve süresi şu söz kaynaklarına gönderilir: LrcLib (lrclib.net), Musixmatch, YouTube Music, Genius ve lyrics.ovh (arama için Deezer'ı kullanır). YouTube Music'e yalnızca sanatçı ve şarkı adı ile bulunan şarkının kimliği gönderilir. Şarkı tanıma açıksa ve sözler bulunamazsa sesin parmak izi Shazam'a gönderilir (yukarıya bakın). Bu servisler isteği işlerken IP adresiniz gibi standart bağlantı bilgilerini görebilir; kendi gizlilik politikaları geçerlidir. Başka hiçbir bilgi gönderilmez.
 
 **Cihazınızda saklananlar.**
 - Ayarlar ve Musixmatch oturum belirteci uygulamanın kendi veri klasöründe tutulur. Uygulamayı kaldırınca silinir.
@@ -30,7 +30,7 @@ MrW Lyrics is a desktop app that shows the lyrics of the song playing on Windows
 
 **Song recognition (version 1.1 and later).** When no lyrics source has the song, the app listens to the player for a few seconds (at most 12) to learn the song's real name. Only the playing app's sound is captured when possible, otherwise the computer's sound output. The sound is never saved or sent: only a fingerprint is computed in memory (a summary of which frequencies are loudest at which moments, from which the sound cannot be rebuilt) and sent to Shazam (Apple), with a random id for each request. This happens once per song and can be turned off in the settings window.
 
-**What the app sends.** To find lyrics, the song's title, artist, album and length are sent to these lyrics services: LrcLib (lrclib.net), Musixmatch, Genius and lyrics.ovh (which uses Deezer for search). With song recognition on and no lyrics found, the sound fingerprint is sent to Shazam (see above). While handling the request these services may see standard connection data such as your IP address; their own privacy policies apply. Nothing else is sent.
+**What the app sends.** To find lyrics, the song's title, artist, album and length are sent to these lyrics services: LrcLib (lrclib.net), Musixmatch, YouTube Music, Genius and lyrics.ovh (which uses Deezer for search). YouTube Music receives only the artist and title, then the id of the song it found. With song recognition on and no lyrics found, the sound fingerprint is sent to Shazam (see above). While handling the request these services may see standard connection data such as your IP address; their own privacy policies apply. Nothing else is sent.
 
 **What is stored on your device.**
 - Settings and a Musixmatch session token are kept in the app's own data folder and are removed when you uninstall the app.

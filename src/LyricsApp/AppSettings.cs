@@ -21,10 +21,13 @@ public sealed class AppSettings
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic), "Lyrics");
 
     /// <summary>
-    /// Lyrics sources in search order: local, lrclib, musixmatch, genius, lyricsovh.
+    /// Lyrics sources in search order: local, lrclib, musixmatch, youtubemusic, genius, lyricsovh.
     /// Remove an id to turn that source off. Found lyrics are still saved to <see cref="LyricsFolder"/>.
     /// </summary>
     public List<string> EnabledProviders { get; set; } = [.. ProviderCatalog.DefaultOrder];
+
+    /// <summary>Every source this file has been offered, so one added by an update gets switched on once.</summary>
+    public List<string>? SeenProviders { get; set; }
 
     /// <summary>
     /// When no source has the lyrics, listen to the player for a few seconds and ask Shazam for the real song name.
@@ -59,6 +62,8 @@ public sealed class AppSettings
                     loaded.Display.Topmost = true;
                     loaded.Topmost = false;
                 }
+                loaded.EnabledProviders = ProviderCatalog.AddNewSources(loaded.EnabledProviders, loaded.SeenProviders);
+                loaded.SeenProviders = [.. ProviderCatalog.DefaultOrder];
                 return loaded;
             }
         }
@@ -66,7 +71,7 @@ public sealed class AppSettings
         {
             // Fall back to defaults; a broken file must not stop the app.
         }
-        return new AppSettings();
+        return new AppSettings { SeenProviders = [.. ProviderCatalog.DefaultOrder] };
     }
 
     public void Save()

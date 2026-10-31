@@ -41,7 +41,7 @@
 
 1. The app listens to the Windows media session (System Media Transport Controls, the same data as the media flyout) and reacts to its events. There is no polling loop.
 2. Titles from video sites are cleaned up ("(Official Video)", "Artist - Topic", "ArtistVEVO", …) before the search.
-3. Lyrics are looked up in order: your local folder, [LrcLib](https://lrclib.net), Musixmatch, Genius and lyrics.ovh. Synced lyrics win; plain lyrics are kept while the remaining sources are asked for a synced version. Only the title, artist, album and length of the song are sent.
+3. Lyrics are looked up in order: your local folder, [LrcLib](https://lrclib.net), Musixmatch, YouTube Music, Genius and lyrics.ovh. Synced lyrics win; plain lyrics are kept while the remaining sources are asked for a synced version. Only the title, artist, album and length of the song are sent.
 4. If nothing is found, the player's sound is captured for 3 to 12 seconds (only the player's own process tree on Windows 10 2004 and later), turned into a Shazam fingerprint in memory and sent to Shazam. The recognised name is searched again, and the lyrics are saved under the name the player reports, so the next play finds them locally without listening again.
 5. The playback position is extrapolated from the last position the player reported, so the highlighted line stays in time between updates.
 

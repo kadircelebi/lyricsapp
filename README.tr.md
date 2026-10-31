@@ -41,7 +41,7 @@
 
 1. Uygulama Windows medya oturumunu (System Media Transport Controls, medya açılır penceresiyle aynı bilgi) dinler ve olaylarına tepki verir. Sürekli yoklama yapmaz.
 2. Video sitelerinden gelen başlıklar aramadan önce temizlenir ("(Official Video)", "Sanatçı - Topic", "SanatçıVEVO" vb.).
-3. Sözler sırayla aranır: yerel klasörünüz, [LrcLib](https://lrclib.net), Musixmatch, Genius ve lyrics.ovh. Senkron söz önceliklidir; yalnızca düz metin bulunursa senkron sürüm için diğer kaynaklara sorulmaya devam edilir. Gönderilen tek bilgi şarkının adı, sanatçısı, albümü ve süresidir.
+3. Sözler sırayla aranır: yerel klasörünüz, [LrcLib](https://lrclib.net), Musixmatch, YouTube Music, Genius ve lyrics.ovh. Senkron söz önceliklidir; yalnızca düz metin bulunursa senkron sürüm için diğer kaynaklara sorulmaya devam edilir. Gönderilen tek bilgi şarkının adı, sanatçısı, albümü ve süresidir.
 4. Hiçbir şey bulunamazsa oynatıcının sesi 3 ile 12 saniye arası dinlenir (Windows 10 2004 ve sonrasında yalnızca oynatıcının kendi süreçleri), bellekte Shazam parmak izine çevrilir ve Shazam'a gönderilir. Tanınan adla yeniden aranır. Sözler oynatıcının bildirdiği adla kaydedilir, böylece şarkı bir daha çaldığında ne internet ne de dinleme gerekir.
 5. Çalma konumu, oynatıcının bildirdiği son konumdan ileriye doğru hesaplanır. Böylece güncellemeler arasında da vurgulanan satır şarkıyla uyumlu kalır.
 

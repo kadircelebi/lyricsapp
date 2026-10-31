@@ -10,6 +10,6 @@ Görünümü size göre ayarlayın: yazı tipi, boyut, aktif ve diğer satırlar
 
 Bulunan sözler Müzik\Lyrics klasörüne .lrc veya .txt olarak kaydedilir. Aynı şarkıyı tekrar dinlediğinizde internete çıkılmaz. Kendi .lrc dosyalarınızı da bu klasöre koyabilirsiniz.
 
-Sözler LrcLib, Musixmatch, Genius ve lyrics.ovh gibi çevrimiçi kaynaklardan aranır. Bunun için yalnızca şarkının adı, sanatçısı, albümü ve süresi gönderilir; tanıma gerekirse Shazam'a sesin parmak izi de gider. Hesap yoktur, kullanım verisi toplanmaz.
+Sözler LrcLib, Musixmatch, YouTube Music, Genius ve lyrics.ovh gibi çevrimiçi kaynaklardan aranır. Bunun için yalnızca şarkının adı, sanatçısı, albümü ve süresi gönderilir; tanıma gerekirse Shazam'a sesin parmak izi de gider. Hesap yoktur, kullanım verisi toplanmaz.
 
 Arayüz Türkçe ve İngilizcedir, Windows dilinize göre açılır.

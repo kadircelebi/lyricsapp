@@ -10,6 +10,6 @@ Make it yours: font, size, colours for the current and other lines, shadow or gl
 
 Lyrics you find are saved to your Music\Lyrics folder as .lrc or .txt files, so replays need no internet. You can drop your own .lrc files there too.
 
-Lyrics are looked up from online sources such as LrcLib, Musixmatch, Genius and lyrics.ovh. Only the song's title, artist, album and length are sent, plus a sound fingerprint to Shazam when recognition is needed. There is no account, and no usage data is collected.
+Lyrics are looked up from online sources such as LrcLib, Musixmatch, YouTube Music, Genius and lyrics.ovh. Only the song's title, artist, album and length are sent, plus a sound fingerprint to Shazam when recognition is needed. There is no account, and no usage data is collected.
 
 The interface is in English and Turkish and follows your Windows language.
