@@ -10,8 +10,8 @@ public static partial class TrackTextCleaner
 {
     private const string NoiseWords =
         @"official\s*(?:music\s*)?(?:lyrics?\s*)?(?:video|audio|visualizer)|(?:music\s*)?video|lyrics?\s*video|" +
-        @"official|audio(?:\s*only)?|with\s*lyrics?|lyrics?|visualizer|mv|m/v|hd|hq|4k|klip|resmi\s*klip|official\s*clip|" +
-        @"(?:\d{4}\s*)?remaster(?:ed)?(?:\s*\d{4})?|sözleri|şarkı\s*sözleri";
+        @"official|audio(?:\s*only)?|with\s*lyrics?|lyrics?|visualizer|mv|m/v|hd|hq|4k|kl[iİ]p|resm[iİ]\s*kl[iİ]p|official\s*clip|" +
+        @"(?:\d{4}\s*)?remaster(?:ed)?(?:\s*\d{4})?|sözler[iİ]|şark[ıI]\s*sözler[iİ]";
 
     [GeneratedRegex(@"\s*[\(\[\{（【]\s*(?:" + NoiseWords + @")[^\)\]\}）】]*[\)\]\}）】]", RegexOptions.IgnoreCase)]
     private static partial Regex BracketNoiseRegex();

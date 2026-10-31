@@ -42,7 +42,8 @@ public static partial class TrackMatcher
 
     private static string FoldDiacritics(string s)
     {
-        var decomposed = s.Replace('ı', 'i').Normalize(NormalizationForm.FormD);
+        // ToLowerInvariant leaves İ as it is, and decomposing it would give a capital I.
+        var decomposed = s.Replace('İ', 'i').Replace('ı', 'i').Normalize(NormalizationForm.FormD);
         var sb = new StringBuilder(decomposed.Length);
         foreach (var c in decomposed)
         {

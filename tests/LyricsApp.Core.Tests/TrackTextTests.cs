@@ -10,6 +10,9 @@ public class TrackTextTests
     [InlineData("Song Name (4K Remastered)", "Song Name")]
     [InlineData("Song Name | Official Audio", "Song Name")]
     [InlineData("Şarkı Adı (Resmi Klip)", "Şarkı Adı")]
+    [InlineData("ŞARKI ADI (RESMİ KLİP)", "ŞARKI ADI")]
+    [InlineData("ŞARKI ADI [ŞARKI SÖZLERİ]", "ŞARKI ADI")]
+    [InlineData("Şarkı Adı - KLİP", "Şarkı Adı")]
     [InlineData("Song (feat. Other)", "Song (feat. Other)")]
     [InlineData("Song (Live)", "Song (Live)")]
     public void Cleans_title_noise(string input, string expected) => Assert.Equal(expected, TrackTextCleaner.CleanTitle(input));
@@ -48,7 +51,20 @@ public class TrackTextTests
     [InlineData("Şarkı Adı", "sarki adi")]
     [InlineData("The Band (Remix) feat. X", "band")]
     [InlineData("Ç-ğ, ö! ü?", "c g o u")]
+    [InlineData("GİTME", "gitme")]
+    [InlineData("İbrahim Tatlıses", "ibrahim tatlises")]
+    [InlineData("KENDİNE İYİ BAK", "kendine iyi bak")]
+    [InlineData("İSİM", "isim")]
+    [InlineData("IŞIK", "isik")]
     public void Normalizes(string input, string expected) => Assert.Equal(expected, TrackMatcher.Normalize(input));
+
+    [Theory]
+    [InlineData("ZEKİ MÜREN", "MANOLYAM", "Zeki Müren", "Manolyam")]
+    [InlineData("Ibrahim Tatlises", "Mavi Mavi", "İbrahim Tatlıses", "Mavi Mavi")]
+    [InlineData("Ahmet Kaya", "KENDİNE İYİ BAK", "Ahmet Kaya", "Kendine İyi Bak")]
+    public void Accepts_same_song_with_turkish_capitals(string artist, string title, string otherArtist, string otherTitle) =>
+        Assert.Equal(TrackMatcher.Score(new TrackInfo(otherArtist, otherTitle), new TrackInfo(otherArtist, otherTitle)),
+            TrackMatcher.Score(new TrackInfo(artist, title), new TrackInfo(otherArtist, otherTitle)));
 
     [Fact]
     public void Accepts_same_song_with_accent_and_artist_differences()
