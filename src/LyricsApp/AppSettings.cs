@@ -17,6 +17,9 @@ public sealed class AppSettings
 
     private static string SettingsPath => Path.Combine(SettingsFolder, "settings.json");
 
+    /// <summary>Per-song time offsets (see <see cref="LyricsApp.Core.TrackOffsets"/>).</summary>
+    public static string OffsetsPath => Path.Combine(SettingsFolder, "offsets.json");
+
     public string LyricsFolder { get; set; } =
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic), "Lyrics");
 
@@ -40,9 +43,6 @@ public sealed class AppSettings
     /// <summary>Old location of the always-on-top flag (v0.1/v0.2); read once and moved into <see cref="Display"/>.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool Topmost { get; set; }
-
-    /// <summary>Added to the player position; positive shows lines earlier.</summary>
-    public double OffsetSeconds { get; set; }
 
     public double? Left { get; set; }
     public double? Top { get; set; }

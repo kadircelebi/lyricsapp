@@ -55,7 +55,7 @@
     <value>Sözleri geciktir (−0,5 sn)</value>
   </data>
   <data name="OffsetLabelToolTip" xml:space="preserve">
-    <value>Zaman kaydırma (sıfırlamak için tıklayın)</value>
+    <value>Zaman kaydırma, bu şarkı için saklanır (sıfırlamak için tıklayın)</value>
   </data>
   <data name="OffsetPlus" xml:space="preserve">
     <value>Sözleri öne al (+0,5 sn)</value>

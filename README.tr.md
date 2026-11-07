@@ -31,7 +31,7 @@
 - **Karaoke odak**: yalnızca söylenen satır ve çevresindeki satırlar ekranda kalır.
 - **Sadece sözler modu**: pencere tamamen saydamlaşır ve sözler masaüstünde yüzer. Harflerin dışına yapılan tıklamalar arkadaki pencereye geçer. Bir satıra tıklayınca kontroller geri gelir.
 - **Görünüm**: yazı tipi, boyut, renkler, gölge ya da parlama, arka plan opaklığı, her zaman üstte. Hazır stiller de var: Klasik, Karaoke sarı, Neon, Sade.
-- **Zaman kaydırma**: sözler şarkının önünde ya da gerisinde kalırsa yarım saniyelik adımlarla düzeltin.
+- **Zaman kaydırma**: sözler şarkının önünde ya da gerisinde kalırsa yarım saniyelik adımlarla düzeltin. Ayar yalnızca o şarkı için hatırlanır.
 - **Başka adla yüklenmiş şarkıları da tanır**: hiçbir kaynakta söz bulunamazsa (örneğin başkasının adıyla yüklenmiş bir video) uygulama oynatıcıyı birkaç saniye dinler, Shazam'dan şarkının gerçek adını öğrenir ve yeniden arar. Yalnızca sesin parmak izi gönderilir, her şarkı için bir kez. Ayarlardan kapatılabilir.
 - **Tekrar dinlemede internet gerekmez**: bulunan sözler `Müzik\Lyrics` klasörüne `.lrc` / `.txt` olarak kaydedilir. Kendi `.lrc` dosyalarınızı da bu klasöre koyabilirsiniz.
 - **Türkçe ve İngilizce** arayüz, Windows dilinize göre açılır.

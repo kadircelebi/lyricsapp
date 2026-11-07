@@ -55,7 +55,7 @@
     <value>Delay lyrics (−0.5 s)</value>
   </data>
   <data name="OffsetLabelToolTip" xml:space="preserve">
-    <value>Time offset (click to reset)</value>
+    <value>Time offset, saved for this song (click to reset)</value>
   </data>
   <data name="OffsetPlus" xml:space="preserve">
     <value>Show lyrics earlier (+0.5 s)</value>

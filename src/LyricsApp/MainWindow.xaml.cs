@@ -39,7 +39,8 @@ public partial class MainWindow : Window
         {
             // Store screenshots: made-up song and lyrics, no network, nothing written to the lyrics folder.
             var demoService = new LyricsService([Demo.DemoMode.CreateLyricsProvider()], cache: null);
-            viewModel = new MainViewModel(settings, Demo.DemoMode.CreateMediaSource(), demoService, recognizer: null, Dispatcher);
+            viewModel = new MainViewModel(settings, Demo.DemoMode.CreateMediaSource(), demoService, recognizer: null,
+                TrackOffsets.InMemory(), Dispatcher);
         }
         else
         {
@@ -48,7 +49,7 @@ public partial class MainWindow : Window
             var watcher = new MediaWatcher();
             var recognizer = new ShazamRecognizer(new ShazamClient(shazamHttp),
                 ct => LoopbackAudio.ReadAsync(watcher.CurrentTrack?.SourceApp, ct));
-            viewModel = new MainViewModel(settings, watcher, service, recognizer, Dispatcher);
+            viewModel = new MainViewModel(settings, watcher, service, recognizer, TrackOffsets.Load(AppSettings.OffsetsPath), Dispatcher);
         }
         viewModel.ActiveLineChanged += (_, index) => ScrollToLine(index);
         viewModel.PropertyChanged += OnViewModelPropertyChanged;

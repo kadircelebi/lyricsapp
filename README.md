@@ -31,7 +31,7 @@
 - **Karaoke focus**: only the current line and its neighbours stay on screen.
 - **Lyrics-only mode**: the window turns fully transparent and the lyrics float on your desktop. Clicks that miss the letters go through to the window behind; click a line to bring the controls back.
 - **Styling**: font, size, colours, shadow or glow, background opacity, always on top, plus ready-made styles (Classic, Karaoke yellow, Neon, Plain).
-- **Time offset** in half-second steps when the lyrics run ahead of or behind the song.
+- **Time offset** in half-second steps when the lyrics run ahead of or behind the song, remembered for that song only.
 - **Recognizes re-uploads**: when no source has the lyrics (a video uploaded under someone else's name, for example), the app listens to the player for a few seconds and asks Shazam for the real song name, then searches again. Only a fingerprint of the sound is sent, once per song. Can be turned off in settings.
 - **Offline replays**: lyrics that are found are saved to `Music\Lyrics` as `.lrc` / `.txt`. You can drop your own `.lrc` files there too.
 - **English and Turkish** interface, following your Windows language.

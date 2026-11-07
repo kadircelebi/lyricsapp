@@ -48,6 +48,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private readonly IMediaSource watcher;
     private readonly LyricsService lyricsService;
     private readonly ITrackRecognizer? recognizer;
+    private readonly TrackOffsets offsets;
     private readonly Dispatcher dispatcher;
     private readonly DispatcherTimer syncTimer;
 
@@ -56,6 +57,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private PlaybackState playback = PlaybackState.Stopped;
     private TrackInfo? currentQuery;
     private bool isWindowVisible = true;
+
+    // Added to the player position; positive shows lines earlier. Saved per song in offsets.
+    private double offsetSeconds;
 
     // Songs already sent to recognition this run, so a song Shazam cannot name is not listened to again and again.
     private readonly HashSet<string> recognitionTried = [];
@@ -70,12 +74,15 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private int activeIndex = -1;
 
     /// <param name="recognizer">Last resort when no source has the lyrics; null turns recognition off (demo mode).</param>
-    public MainViewModel(AppSettings settings, IMediaSource watcher, LyricsService lyricsService, ITrackRecognizer? recognizer, Dispatcher dispatcher)
+    /// <param name="offsets">Per-song time offsets; a song comes back with its own offset, or none.</param>
+    public MainViewModel(AppSettings settings, IMediaSource watcher, LyricsService lyricsService, ITrackRecognizer? recognizer,
+        TrackOffsets offsets, Dispatcher dispatcher)
     {
         this.settings = settings;
         this.watcher = watcher;
         this.lyricsService = lyricsService;
         this.recognizer = recognizer;
+        this.offsets = offsets;
         this.dispatcher = dispatcher;
 
         // Runs only while synced lyrics are on screen and the player is playing.
@@ -115,7 +122,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public double GetActiveLineProgress()
     {
         if (!IsSynced || activeIndex < 0 || activeIndex >= syncedLines.Count) return 0;
-        var position = playback.GetPosition(DateTimeOffset.Now) + TimeSpan.FromSeconds(settings.OffsetSeconds);
+        var position = playback.GetPosition(DateTimeOffset.Now) + TimeSpan.FromSeconds(offsetSeconds);
         var start = syncedLines[activeIndex].Time;
         var end = activeIndex + 1 < syncedLines.Count
             ? syncedLines[activeIndex + 1].Time
@@ -147,9 +154,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     }
     public int ActiveIndex => activeIndex;
 
-    public string OffsetText => Strings.OffsetSeconds(settings.OffsetSeconds == 0
+    public string OffsetText => Strings.OffsetSeconds(offsetSeconds == 0
         ? "0"
-        : settings.OffsetSeconds.ToString("+0.0;-0.0", CultureInfo.CurrentCulture));
+        : offsetSeconds.ToString("+0.0;-0.0", CultureInfo.CurrentCulture));
 
     public async Task StartAsync()
     {
@@ -169,15 +176,24 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         UpdateTimer();
     }
 
+    /// <summary>Moves the lyrics for the current song and remembers it for that song.</summary>
     public void AdjustOffset(double deltaSeconds)
     {
-        settings.OffsetSeconds = Math.Round(settings.OffsetSeconds + deltaSeconds, 1);
-        if (Math.Abs(settings.OffsetSeconds) < 0.05) settings.OffsetSeconds = 0;
+        SetOffset(offsetSeconds + deltaSeconds);
+        offsets.Set(currentQuery, offsetSeconds);
+    }
+
+    public void ResetOffset() => AdjustOffset(-offsetSeconds);
+
+    private void SetOffset(double seconds)
+    {
+        seconds = Math.Round(seconds, 1);
+        if (Math.Abs(seconds) < 0.05) seconds = 0;
+        if (seconds == offsetSeconds) return;
+        offsetSeconds = seconds;
         OnPropertyChanged(nameof(OffsetText));
         UpdateActiveLine();
     }
-
-    public void ResetOffset() => AdjustOffset(-settings.OffsetSeconds);
 
     public Task RetryAsync()
     {
@@ -201,6 +217,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         if (track is null)
         {
             currentQuery = null;
+            SetOffset(0);
             Title = Strings.WaitingForTrack;
             Artist = string.Empty;
             Thumbnail = null;
@@ -210,6 +227,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
         var cleaned = TrackTextCleaner.Clean(track.Track);
         currentQuery = cleaned;
+        // Each song starts with its own saved offset, or none: one song's correction must not carry over.
+        SetOffset(offsets.Get(cleaned));
         Title = cleaned.Title;
         Artist = cleaned.Artist;
         Thumbnail = null;
@@ -398,7 +417,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private void UpdateActiveLine()
     {
         if (!IsSynced || syncedLines.Count == 0) return;
-        var position = playback.GetPosition(DateTimeOffset.Now) + TimeSpan.FromSeconds(settings.OffsetSeconds);
+        var position = playback.GetPosition(DateTimeOffset.Now) + TimeSpan.FromSeconds(offsetSeconds);
         SetActiveIndex(LrcParser.FindActiveLine(syncedLines, position));
     }
 

@@ -1,6 +1,6 @@
 # MrW Lyrics: Gizlilik Politikası / Privacy Policy
 
-Son güncelleme / Last updated: 2026-10-31
+Son güncelleme / Last updated: 2026-11-07
 
 ## Türkçe
 
@@ -13,7 +13,7 @@ MrW Lyrics, Windows'ta çalan şarkının sözlerini gösteren bir masaüstü uy
 **Gönderilen bilgiler.** Sözleri bulmak için şarkının adı, sanatçısı, albümü ve süresi şu söz kaynaklarına gönderilir: LrcLib (lrclib.net), Musixmatch, YouTube Music, Genius ve lyrics.ovh (arama için Deezer'ı kullanır). YouTube Music'e yalnızca sanatçı ve şarkı adı ile bulunan şarkının kimliği gönderilir. Şarkı tanıma açıksa ve sözler bulunamazsa sesin parmak izi Shazam'a gönderilir (yukarıya bakın). Bu servisler isteği işlerken IP adresiniz gibi standart bağlantı bilgilerini görebilir; kendi gizlilik politikaları geçerlidir. Başka hiçbir bilgi gönderilmez.
 
 **Cihazınızda saklananlar.**
-- Ayarlar ve Musixmatch oturum belirteci uygulamanın kendi veri klasöründe tutulur. Uygulamayı kaldırınca silinir.
+- Ayarlar, Musixmatch oturum belirteci ve şarkıya göre yaptığınız zaman kaydırmaları (şarkının adı ve sanatçısıyla birlikte) uygulamanın kendi veri klasöründe tutulur. Uygulamayı kaldırınca silinir.
 - Bulunan sözler Müzik\Lyrics klasörüne .lrc veya .txt dosyası olarak kaydedilir. Bunlar sizin dosyalarınızdır; uygulama kaldırılınca silinmez, isterseniz elle silebilirsiniz.
 
 **Paylaşım.** Bilgileriniz satılmaz, kiralanmaz ve yukarıdaki söz kaynakları ile Shazam dışında kimseyle paylaşılmaz.
@@ -33,7 +33,7 @@ MrW Lyrics is a desktop app that shows the lyrics of the song playing on Windows
 **What the app sends.** To find lyrics, the song's title, artist, album and length are sent to these lyrics services: LrcLib (lrclib.net), Musixmatch, YouTube Music, Genius and lyrics.ovh (which uses Deezer for search). YouTube Music receives only the artist and title, then the id of the song it found. With song recognition on and no lyrics found, the sound fingerprint is sent to Shazam (see above). While handling the request these services may see standard connection data such as your IP address; their own privacy policies apply. Nothing else is sent.
 
 **What is stored on your device.**
-- Settings and a Musixmatch session token are kept in the app's own data folder and are removed when you uninstall the app.
+- Settings, a Musixmatch session token and the time offsets you set for individual songs (with the song's title and artist) are kept in the app's own data folder and are removed when you uninstall the app.
 - Lyrics that are found are saved as .lrc or .txt files in your Music\Lyrics folder. They are your files: they stay when the app is uninstalled, and you can delete them at any time.
 
 **Sharing.** Your information is not sold, rented or shared with anyone other than the lyrics services above and Shazam.
