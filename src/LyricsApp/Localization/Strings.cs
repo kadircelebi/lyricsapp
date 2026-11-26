@@ -24,12 +24,15 @@ public static class Strings
     public static string NotFound => Get(nameof(NotFound));
     public static string NotFoundWithErrors => Get(nameof(NotFoundWithErrors));
     public static string Recognizing => Get(nameof(Recognizing));
+    public static string SourceAutomatic => Get(nameof(SourceAutomatic));
 
     public static string MediaSessionFailed(string message) => Format(nameof(MediaSessionFailed), message);
     public static string OffsetSeconds(string seconds) => Format(nameof(OffsetSeconds), seconds);
     public static string LocalFolderSource(string fileName) => Format(nameof(LocalFolderSource), fileName);
     public static string RecognizedNotFound(string song) => Format(nameof(RecognizedNotFound), song);
     public static string RecognizedSource(string source) => Format(nameof(RecognizedSource), source);
+    public static string SourceFollowedNow(string player) => Format(nameof(SourceFollowedNow), player);
+    public static string SourceNotOpen(string player) => Format(nameof(SourceNotOpen), player);
 
     private static string Format(string key, params object[] args) => string.Format(CultureInfo.CurrentCulture, Get(key), args);
 }

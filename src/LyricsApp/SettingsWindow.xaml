@@ -161,6 +161,16 @@
                 <Slider Minimum="0" Maximum="1" SmallChange="0.05" Value="{Binding ShadowOpacity}" />
             </StackPanel>
 
+            <TextBlock Text="{local:Loc SectionSources}" Style="{StaticResource Section}" />
+            <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{StaticResource DimText}" Margin="0,0,0,6"
+                       Text="{local:Loc SourcesHint}" />
+            <StackPanel x:Name="SourcesList" AutomationProperties.AutomationId="SourcesList" />
+            <TextBlock x:Name="SourcesNone" TextWrapping="Wrap" Foreground="{StaticResource SecondaryText}"
+                       Text="{local:Loc SourcesNone}" Visibility="Collapsed" />
+            <CheckBox Margin="0,10,0,4" IsChecked="{Binding VersionNotice}" AutomationProperties.AutomationId="VersionNoticeBox">
+                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource PrimaryText}" Text="{local:Loc SettingsVersionNotice}" />
+            </CheckBox>
+
             <TextBlock Text="{local:Loc SectionRecognition}" Style="{StaticResource Section}" />
             <CheckBox x:Name="RecognizeBox">
                 <TextBlock TextWrapping="Wrap" Foreground="{StaticResource PrimaryText}" Text="{local:Loc SettingsRecognizeUnfound}" />

@@ -27,6 +27,8 @@
 ## Özellikler
 
 - **Çalan şarkıyı kendiliğinden bulur**: Spotify, tarayıcıda YouTube, Windows Medya Oynatıcısı ve Windows medya kontrollerinde görünen diğer uygulamalar. Ayar gerekmez.
+- **Müzikte kalır**: bir şarkı çalarken başka bir uygulamada açılan video pencereyi devralmaz; albümü olmayan uzun kayıtlar (konuşma, podcast, film) şarkı sayılmaz. Pencere menüsünden oynatıcıyı elle seçebilirsiniz; seçim hatırlanır ve o oynatıcı her açıldığında pencere ona döner. Ayarlardan bir oynatıcıyı tümüyle kapatabilirsiniz.
+- **Sürüm farklıysa söyler**: giriş sahnesi olan bir klip, sözlerin zamanlandığı albüm kaydından uzundur; satırlar erken ya da geç gelebilir. Küçük bir not bunu, satırları kaydıran düğmelerin yanında haber verir; "Bir daha gösterme" notu kapatır.
 - **Senkron sözler**: o an söylenen satır vurgulanır, pencere şarkıyla birlikte kayar. İsterseniz satır, söylendikçe soldan sağa dolar.
 - **Karaoke odak**: yalnızca söylenen satır ve çevresindeki satırlar ekranda kalır.
 - **Sadece sözler modu**: pencere tamamen saydamlaşır ve sözler masaüstünde yüzer. Harflerin dışına yapılan tıklamalar arkadaki pencereye geçer. Bir satıra tıklayınca kontroller geri gelir.
@@ -40,7 +42,7 @@
 
 ## Nasıl çalışır
 
-1. Uygulama Windows medya oturumunu (System Media Transport Controls, medya açılır penceresiyle aynı bilgi) dinler ve olaylarına tepki verir. Sürekli yoklama yapmaz.
+1. Uygulama Windows medya oturumlarını (System Media Transport Controls, medya açılır penceresiyle aynı bilgi) dinler ve olaylarına tepki verir. Sürekli yoklama yapmaz. Birden çok oynatıcı bir şey bildirdiğinde en son başlayanı değil, şarkı çalanı izler.
 2. Video sitelerinden gelen başlıklar aramadan önce temizlenir ("(Official Video)", "Sanatçı - Topic", "SanatçıVEVO" vb.).
 3. Sözler sırayla aranır: yerel klasörünüz, [LrcLib](https://lrclib.net), Musixmatch, YouTube Music, Genius ve lyrics.ovh. Senkron söz önceliklidir; yalnızca düz metin bulunursa senkron sürüm için diğer kaynaklara sorulmaya devam edilir. Gönderilen tek bilgi şarkının adı, sanatçısı, albümü ve süresidir.
 4. Hiçbir şey bulunamazsa oynatıcının sesi 3 ile 12 saniye arası dinlenir (Windows 10 2004 ve sonrasında yalnızca oynatıcının kendi süreçleri), bellekte Shazam parmak izine çevrilir ve Shazam'a gönderilir. Tanınan adla yeniden aranır. Sözler oynatıcının bildirdiği adla kaydedilir, böylece şarkı bir daha çaldığında ne internet ne de dinleme gerekir.

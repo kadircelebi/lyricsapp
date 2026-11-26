@@ -182,7 +182,7 @@ public partial class MainWindow : Window
             settingsWindow.Activate();
             return;
         }
-        settingsWindow = new SettingsWindow(settings) { Owner = this };
+        settingsWindow = new SettingsWindow(settings, viewModel.Players, viewModel.ApplySourceSettings) { Owner = this };
         settingsWindow.Closed += (_, _) =>
         {
             settings.Save();
@@ -190,6 +190,31 @@ public partial class MainWindow : Window
         };
         settingsWindow.Show();
     }
+
+    /// <summary>
+    /// Source menu: "Automatic" plus the players reporting a song right now; the hand-picked one is ticked and
+    /// listed even while it is closed.
+    /// </summary>
+    private void OnWindowMenuOpened(object sender, RoutedEventArgs e)
+    {
+        var menu = ((ContextMenu)sender).Items.OfType<MenuItem>().FirstOrDefault(item => item.Tag as string == "Source");
+        if (menu is null) return;
+
+        menu.Items.Clear();
+        foreach (var entry in SourceMenu.Entries(viewModel.Players, viewModel.PinnedApp))
+        {
+            if (menu.Items.Count == 1) menu.Items.Add(new Separator());
+            var item = new MenuItem { Header = entry.Header, IsCheckable = true, IsChecked = entry.IsChecked };
+            item.Click += (_, _) =>
+            {
+                viewModel.PinnedApp = entry.App;
+                settings.Save();
+            };
+            menu.Items.Add(item);
+        }
+    }
+
+    private void OnVersionNoticeDismissClick(object sender, RoutedEventArgs e) => viewModel.DismissVersionNotice();
 
     private void OnOffsetMinusClick(object sender, RoutedEventArgs e) => viewModel.AdjustOffset(-0.5);
 

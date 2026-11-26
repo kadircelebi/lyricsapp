@@ -20,13 +20,17 @@
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
         <local:BoolToCollapsedConverter x:Key="BoolToCollapsed" />
 
-        <ContextMenu x:Key="WindowMenu">
+        <ContextMenu x:Key="WindowMenu" Opened="OnWindowMenuOpened">
             <MenuItem Header="{local:Loc AlwaysOnTop}" IsCheckable="True" IsChecked="{Binding Display.Topmost}" />
             <MenuItem Header="{local:Loc MenuLyricsOnly}" IsCheckable="True" IsChecked="{Binding Display.LyricsOnly}" />
             <MenuItem Header="{local:Loc MenuFocusMode}" IsCheckable="True" IsChecked="{Binding Display.FocusMode}" />
             <MenuItem Header="{local:Loc MenuLineFill}" IsCheckable="True" IsChecked="{Binding Display.LineFill}" />
             <MenuItem Header="{local:Loc MenuStreamerMode}" IsCheckable="True" IsChecked="{Binding Display.StreamerMode}" />
             <Separator />
+            <!-- Filled each time the menu opens: "Automatic" and the players reporting a song right now. -->
+            <MenuItem Header="{local:Loc MenuSource}" Tag="Source">
+                <MenuItem Header="{local:Loc SourceAutomatic}" />
+            </MenuItem>
             <MenuItem Header="{local:Loc RetrySearch}" Click="OnRetryClick" />
             <MenuItem Header="{local:Loc OpenLyricsFolder}" Click="OnOpenFolderClick" />
             <MenuItem Header="{local:Loc MenuSettings}" Click="OnSettingsClick" />
@@ -110,6 +114,49 @@
         <TextBlock Grid.Row="1" Text="{Binding Status}" Foreground="{StaticResource SecondaryText}" FontSize="14"
                    TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24"
                    Visibility="{Binding HasStatus, Converter={StaticResource BoolToVisibility}}" />
+
+        <!-- The player's version differs in length from the one the lyrics were timed for. Normal mode only: the other
+             modes show nothing but the lyrics, and streamer mode is what a capture sees. -->
+        <Border Grid.Row="1" VerticalAlignment="Bottom" Margin="12" Padding="12,9,8,9" CornerRadius="8"
+                Background="#F224242C" BorderBrush="#30FFFFFF" BorderThickness="1"
+                AutomationProperties.AutomationId="VersionNotice">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Style.Triggers>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding ShowVersionNotice}" Value="True" />
+                                <Condition Binding="{Binding Display.LyricsOnly}" Value="False" />
+                                <Condition Binding="{Binding Display.StreamerMode}" Value="False" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Visibility" Value="Visible" />
+                        </MultiDataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <StackPanel>
+                <TextBlock Text="{local:Loc VersionNoticeText}" Foreground="{StaticResource SecondaryText}" FontSize="12" TextWrapping="Wrap" />
+                <Button Content="{local:Loc VersionNoticeDismiss}" HorizontalAlignment="Right" Margin="0,6,0,0" Cursor="Hand"
+                        AutomationProperties.AutomationId="VersionNoticeDismiss" Click="OnVersionNoticeDismissClick">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="Bd" Background="Transparent" CornerRadius="5" Padding="8,4">
+                                <TextBlock Text="{TemplateBinding Content}" Foreground="{StaticResource Accent}" FontSize="12" FontWeight="SemiBold" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="{StaticResource ButtonHover}" />
+                                </Trigger>
+                                <Trigger Property="IsKeyboardFocused" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="{StaticResource ButtonHover}" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </StackPanel>
+        </Border>
 
         <!-- Header: artwork, title, tools. Hidden in lyrics-only mode until a line is clicked;
              streamer mode shows its own song card instead. -->

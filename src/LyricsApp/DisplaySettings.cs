@@ -11,6 +11,7 @@ public sealed class DisplaySettings : ObservableObject
     private bool lyricsOnly;
     private bool streamerMode;
     private bool streamerProgress = true;
+    private bool versionNotice = true;
     private double backgroundOpacity = 1.0;
     private bool focusMode = true;
     private int contextLines = 2;
@@ -39,6 +40,12 @@ public sealed class DisplaySettings : ObservableObject
 
     /// <summary>In streamer mode, the song card shows the elapsed time, the song's length and a bar that fills as it plays.</summary>
     public bool StreamerProgress { get => streamerProgress; set => Set(ref streamerProgress, value); }
+
+    /// <summary>
+    /// Say so when the player's recording is longer or shorter than the one the lyrics were timed for (a music video
+    /// with an intro scene, for example). The note's own button turns this off for good.
+    /// </summary>
+    public bool VersionNotice { get => versionNotice; set => Set(ref versionNotice, value); }
 
     /// <summary>Background opacity in normal mode (0 = fully transparent, 1 = solid).</summary>
     public double BackgroundOpacity { get => backgroundOpacity; set => Set(ref backgroundOpacity, Math.Clamp(value, 0, 1)); }

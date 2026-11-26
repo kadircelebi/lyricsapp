@@ -201,4 +201,34 @@
   <data name="HexToolTip" xml:space="preserve">
     <value>#AARRGGBB veya #RRGGBB</value>
   </data>
+  <data name="MenuSource" xml:space="preserve">
+    <value>Kaynak</value>
+  </data>
+  <data name="SourceAutomatic" xml:space="preserve">
+    <value>Otomatik</value>
+  </data>
+  <data name="SourceFollowedNow" xml:space="preserve">
+    <value>{0} (şu an izlenen)</value>
+  </data>
+  <data name="SourceNotOpen" xml:space="preserve">
+    <value>{0} (açık değil)</value>
+  </data>
+  <data name="VersionNoticeText" xml:space="preserve">
+    <value>Bu sürüm, sözlerin zamanlandığı kayıtla aynı uzunlukta değil; satırlar erken ya da geç gelebilir. Yukarıdaki − ve + düğmeleri satırları kaydırır.</value>
+  </data>
+  <data name="VersionNoticeDismiss" xml:space="preserve">
+    <value>Bir daha gösterme</value>
+  </data>
+  <data name="SectionSources" xml:space="preserve">
+    <value>OYNATICILAR</value>
+  </data>
+  <data name="SourcesHint" xml:space="preserve">
+    <value>Sözler, şarkı çalan oynatıcıyı izler. Bir şarkı çalarken başka bir uygulamada başlatılan şey pencereyi devralmaz. Albümü olmayan uzun kayıtlar (konuşma, podcast, film) şarkı sayılmaz ve tanıma için dinlenmez. Hiç izlenmesini istemediğiniz uygulamanın işaretini kaldırın.</value>
+  </data>
+  <data name="SourcesNone" xml:space="preserve">
+    <value>Şu an şarkı bildiren bir oynatıcı yok. Burada görmek için bir oynatıcı başlatın.</value>
+  </data>
+  <data name="SettingsVersionNotice" xml:space="preserve">
+    <value>Çalan sürümün uzunluğu sözlerin zamanlandığı kayıttan farklıysa haber ver</value>
+  </data>
 </root>

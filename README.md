@@ -27,6 +27,8 @@
 ## Features
 
 - **Detects the song that is playing** in Spotify, YouTube in your browser, Windows Media Player and any other app that shows up in the Windows media controls. Nothing to configure.
+- **Stays with the music**: while a song plays, a video started in another app does not take the window over, and long recordings without an album (talks, podcasts, films) are not treated as songs. The window menu lets you pick the player by hand; the choice is remembered, and the window goes back to that player whenever it opens. The settings can switch a player off for good.
+- **Says when the version differs**: a music video with an intro scene is longer than the album track the lyrics were timed for, so the lines may run early or late. A small note says so, next to the buttons that shift the lines; its "Don't show again" turns it off.
 - **Synced lyrics**: the line being sung is highlighted and the window scrolls along. An optional fill effect sweeps across the line as it is sung.
 - **Karaoke focus**: only the current line and its neighbours stay on screen.
 - **Lyrics-only mode**: the window turns fully transparent and the lyrics float on your desktop. Clicks that miss the letters go through to the window behind; click a line to bring the controls back.
@@ -40,7 +42,7 @@
 
 ## How it works
 
-1. The app listens to the Windows media session (System Media Transport Controls, the same data as the media flyout) and reacts to its events. There is no polling loop.
+1. The app listens to the Windows media sessions (System Media Transport Controls, the same data as the media flyout) and reacts to their events. There is no polling loop. When several players report something, it follows the one playing a song rather than the one that started last.
 2. Titles from video sites are cleaned up ("(Official Video)", "Artist - Topic", "ArtistVEVO", …) before the search.
 3. Lyrics are looked up in order: your local folder, [LrcLib](https://lrclib.net), Musixmatch, YouTube Music, Genius and lyrics.ovh. Synced lyrics win; plain lyrics are kept while the remaining sources are asked for a synced version. Only the title, artist, album and length of the song are sent.
 4. If nothing is found, the player's sound is captured for 3 to 12 seconds (only the player's own process tree on Windows 10 2004 and later), turned into a Shazam fingerprint in memory and sent to Shazam. The recognised name is searched again, and the lyrics are saved under the name the player reports, so the next play finds them locally without listening again.

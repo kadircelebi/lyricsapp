@@ -201,4 +201,34 @@
   <data name="HexToolTip" xml:space="preserve">
     <value>#AARRGGBB or #RRGGBB</value>
   </data>
+  <data name="MenuSource" xml:space="preserve">
+    <value>Source</value>
+  </data>
+  <data name="SourceAutomatic" xml:space="preserve">
+    <value>Automatic</value>
+  </data>
+  <data name="SourceFollowedNow" xml:space="preserve">
+    <value>{0} (followed now)</value>
+  </data>
+  <data name="SourceNotOpen" xml:space="preserve">
+    <value>{0} (not open)</value>
+  </data>
+  <data name="VersionNoticeText" xml:space="preserve">
+    <value>This version is not the same length as the recording the lyrics were timed for, so the lines may come early or late. The − and + buttons above shift them.</value>
+  </data>
+  <data name="VersionNoticeDismiss" xml:space="preserve">
+    <value>Don't show again</value>
+  </data>
+  <data name="SectionSources" xml:space="preserve">
+    <value>PLAYERS</value>
+  </data>
+  <data name="SourcesHint" xml:space="preserve">
+    <value>The lyrics follow the player that is playing a song. While a song plays, something started in another app does not take the window over. Long recordings without an album (talks, podcasts, films) are not treated as songs and are not listened to for recognition. Untick an app to never follow it.</value>
+  </data>
+  <data name="SourcesNone" xml:space="preserve">
+    <value>No player is reporting a song right now. Start one to see it here.</value>
+  </data>
+  <data name="SettingsVersionNotice" xml:space="preserve">
+    <value>Tell me when the version playing differs in length from the recording the lyrics were timed for</value>
+  </data>
 </root>

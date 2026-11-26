@@ -1,7 +1,9 @@
 using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Media;
+using LyricsApp.Media;
 
 namespace LyricsApp;
 
@@ -9,7 +11,9 @@ public partial class SettingsWindow : Window
 {
     private readonly DisplaySettings display;
 
-    public SettingsWindow(AppSettings settings)
+    /// <param name="players">The players reporting a song right now; the ignored ones come from the settings.</param>
+    /// <param name="ignoredAppsChanged">Called after the "never follow" list changed, so it takes effect at once.</param>
+    public SettingsWindow(AppSettings settings, IReadOnlyList<MediaPlayerInfo> players, Action ignoredAppsChanged)
     {
         InitializeComponent();
         display = settings.Display;
@@ -19,7 +23,39 @@ public partial class SettingsWindow : Window
         RecognizeBox.Checked += (_, _) => settings.RecognizeUnfoundSongs = true;
         RecognizeBox.Unchecked += (_, _) => settings.RecognizeUnfoundSongs = false;
         FontBox.ItemsSource = Fonts.SystemFontFamilies.Select(f => f.Source).Order(StringComparer.CurrentCulture).ToList();
+        ShowSources(settings, players, ignoredAppsChanged);
         SourceInitialized += (_, _) => UseDarkTitleBar();
+    }
+
+    /// <summary>One box per player: the running ones and the ones turned off earlier. Unticked means never followed.</summary>
+    private void ShowSources(AppSettings settings, IReadOnlyList<MediaPlayerInfo> players, Action ignoredAppsChanged)
+    {
+        var apps = players.Select(p => new SavedApp(p.App, p.Name))
+            .Concat(settings.IgnoredApps)
+            .DistinctBy(app => app.Id)
+            .OrderBy(app => app.Name, StringComparer.CurrentCulture)
+            .ToList();
+        SourcesNone.Visibility = apps.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+
+        foreach (var app in apps)
+        {
+            var box = new CheckBox
+            {
+                Content = new TextBlock { Text = app.Name, TextWrapping = TextWrapping.Wrap, Foreground = Foreground },
+                IsChecked = settings.IgnoredApps.All(ignored => ignored.Id != app.Id),
+            };
+            box.Checked += (_, _) =>
+            {
+                settings.IgnoredApps.RemoveAll(ignored => ignored.Id == app.Id);
+                ignoredAppsChanged();
+            };
+            box.Unchecked += (_, _) =>
+            {
+                if (settings.IgnoredApps.All(ignored => ignored.Id != app.Id)) settings.IgnoredApps.Add(app);
+                ignoredAppsChanged();
+            };
+            SourcesList.Children.Add(box);
+        }
     }
 
     private void OnPresetClick(object sender, RoutedEventArgs e)

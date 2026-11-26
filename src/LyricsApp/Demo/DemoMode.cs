@@ -97,6 +97,16 @@ public static class DemoMode
 
         public MediaTrack? CurrentTrack { get; private set; }
         public PlaybackState Playback { get; private set; } = PlaybackState.Stopped;
+        public IReadOnlyList<MediaPlayerInfo> Players => [];
+        public string? PinnedApp { get; set; }
+
+        public void SetIgnoredApps(IEnumerable<string> apps)
+        {
+        }
+
+        public void ReportNoLyrics()
+        {
+        }
 
         public async Task StartAsync()
         {

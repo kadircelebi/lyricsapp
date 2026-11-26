@@ -109,7 +109,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
                 UpdateTimer();
                 UpdateSongProgress();
             }
+            if (e.PropertyName is nameof(DisplaySettings.VersionNotice)) UpdateVersionNotice();
         };
+        ApplySourceSettings();
     }
 
     public DisplaySettings Display => settings.Display;
@@ -181,6 +183,51 @@ public sealed class MainViewModel : ObservableObject, IDisposable
 
     /// <summary>The song's length (3:45).</summary>
     public string SongDurationText { get => songDurationText; private set => Set(ref songDurationText, value); }
+
+    private TimeSpan? lyricsLength;
+    private bool showVersionNotice;
+
+    /// <summary>
+    /// The player's recording is longer or shorter than the one the lyrics were timed for, so the lines may run early
+    /// or late. Stays false once the user turned the note off.
+    /// </summary>
+    public bool ShowVersionNotice { get => showVersionNotice; private set => Set(ref showVersionNotice, value); }
+
+    /// <summary>The note's "don't show again": off for every song from now on (the settings window turns it back on).</summary>
+    public void DismissVersionNotice()
+    {
+        Display.VersionNotice = false;
+        settings.Save();
+    }
+
+    private void UpdateVersionNotice() =>
+        ShowVersionNotice = Display.VersionNotice && IsSynced && TrackMatcher.IsDifferentVersion(playback.Duration, lyricsLength);
+
+    /// <summary>The players that report a song right now, for the source menu.</summary>
+    public IReadOnlyList<MediaPlayerInfo> Players => watcher.Players;
+
+    /// <summary>
+    /// The player picked by hand in the source menu; null while the choice is automatic. It lives in the settings,
+    /// so it holds across restarts and while that player is closed.
+    /// </summary>
+    public SavedApp? PinnedApp
+    {
+        get => settings.PinnedApp;
+        set
+        {
+            settings.PinnedApp = value;
+            watcher.PinnedApp = value?.Id;
+        }
+    }
+
+    /// <summary>Hands the "never follow" list and the hand-picked player from the settings to the media source.</summary>
+    public void ApplySourceSettings()
+    {
+        // A player that is switched off cannot stay the chosen one.
+        if (settings.PinnedApp is { } pinned && settings.IgnoredApps.Any(app => app.Id == pinned.Id)) settings.PinnedApp = null;
+        watcher.SetIgnoredApps(settings.IgnoredApps.Select(app => app.Id));
+        watcher.PinnedApp = settings.PinnedApp?.Id;
+    }
 
     public string OffsetText => Strings.OffsetSeconds(offsetSeconds == 0
         ? "0"
@@ -303,8 +350,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         ShowResult(search, recognized: false);
     }
 
+    // A long recording without an album is a talk, a mix or a film: its sound is not listened to.
     private bool CanRecognize(TrackInfo query) =>
-        recognizer is not null && settings.RecognizeUnfoundSongs && !query.IsEmpty
+        recognizer is not null && settings.RecognizeUnfoundSongs && !query.IsEmpty && PlayerPicker.IsSong(query)
         && !recognitionTried.Contains(RecognitionKey(query));
 
     private static string RecognitionKey(TrackInfo track) =>
@@ -344,6 +392,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         if (recognized is null || TrackMatcher.Score(query with { Duration = null }, recognized) >= SameSongScore)
         {
             Status = Strings.NotFound;
+            watcher.ReportNoLyrics();
             return;
         }
 
@@ -364,6 +413,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         if (search.Result is null)
         {
             Status = Strings.RecognizedNotFound(recognized.ToString());
+            watcher.ReportNoLyrics();
             return;
         }
         Title = recognized.Title;
@@ -393,13 +443,17 @@ public sealed class MainViewModel : ObservableObject, IDisposable
                 Status = search.Errors.Count > 0
                     ? Strings.NotFoundWithErrors
                     : Strings.NotFound;
+                // Lets another player that is playing a song take over (a video was mistaken for one).
+                watcher.ReportNoLyrics();
                 break;
         }
         var source = search.Result is null ? string.Empty : DisplaySource(search.Result.Lyrics.Source);
         ProviderName = recognized && source.Length > 0 ? Strings.RecognizedSource(source) : source;
+        lyricsLength = search.Result?.MatchedTrack.Duration;
         UpdateLineStates();
         UpdateTimer();
         UpdateActiveLine();
+        UpdateVersionNotice();
     }
 
     /// <summary>The local folder reports "Local folder: file.lrc"; that part is shown in the UI language.</summary>
@@ -417,8 +471,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         Lines.Clear();
         IsSynced = false;
         ProviderName = string.Empty;
+        lyricsLength = null;
         SetActiveIndex(-1);
         UpdateTimer();
+        UpdateVersionNotice();
     }
 
     private void OnPlaybackChanged(PlaybackState state)
@@ -429,6 +485,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         UpdateTimer();
         UpdateActiveLine();
         UpdateSongProgress();
+        UpdateVersionNotice();
 
         if (state.IsPlaying && pendingRecognition is { } pending && pending == currentQuery)
         {

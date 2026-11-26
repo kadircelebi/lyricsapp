@@ -5,6 +5,9 @@ using LyricsApp.Core.Providers;
 
 namespace LyricsApp;
 
+/// <summary>A player the settings remember. The name is kept so it can be shown while that player is closed.</summary>
+public sealed record SavedApp(string Id, string Name);
+
 public sealed class AppSettings
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
@@ -38,6 +41,15 @@ public sealed class AppSettings
     /// </summary>
     public bool RecognizeUnfoundSongs { get; set; } = true;
 
+    /// <summary>Players that are never followed, whatever they play (a browser used only for videos, say).</summary>
+    public List<SavedApp> IgnoredApps { get; set; } = [];
+
+    /// <summary>
+    /// The player picked by hand in the source menu; null while the choice is automatic. It is kept while that
+    /// player is closed, so the window goes back to it when it opens again.
+    /// </summary>
+    public SavedApp? PinnedApp { get; set; }
+
     public DisplaySettings Display { get; set; } = new();
 
     /// <summary>Old location of the always-on-top flag (v0.1/v0.2); read once and moved into <see cref="Display"/>.</summary>
@@ -57,6 +69,7 @@ public sealed class AppSettings
             {
                 var loaded = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(SettingsPath)) ?? new AppSettings();
                 loaded.Display ??= new DisplaySettings();
+                loaded.IgnoredApps ??= [];
                 if (loaded.Topmost)
                 {
                     loaded.Display.Topmost = true;
