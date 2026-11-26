@@ -57,6 +57,28 @@ public class LrcParserTests
     }
 
     [Theory]
+    [InlineData("[length:3:45]\n[00:01.00]a", 225)]
+    [InlineData("[ar:Artist]\n[Length: 03:45.20]\n[00:01.00]a", 225)]
+    [InlineData("[length:1:02:03]\n[00:01.00]a", 3723)]
+    [InlineData("[00:01.00]a", null)]
+    [InlineData("[length:soon]\n[00:01.00]a", null)]
+    [InlineData("[length:0:00]\n[00:01.00]a", null)]
+    [InlineData("", null)]
+    public void Reads_the_song_length_tag(string text, int? seconds) =>
+        Assert.Equal(seconds is { } s ? TimeSpan.FromSeconds(s) : (TimeSpan?)null, LrcParser.ReadLength(text));
+
+    [Fact]
+    public void The_length_tag_round_trips_and_is_not_a_lyric_line()
+    {
+        var length = new TimeSpan(0, 12, 5);
+        var text = LrcParser.FormatLength(length) + "\n[00:01.00]a";
+        Assert.Equal("[length:12:05]", LrcParser.FormatLength(length));
+        Assert.Equal(length, LrcParser.ReadLength(text));
+        Assert.True(LrcParser.IsLrc(text));
+        Assert.Single(LrcParser.Parse(text));
+    }
+
+    [Theory]
     [InlineData(0.5, -1)]
     [InlineData(1.0, 0)]
     [InlineData(4.99, 0)]

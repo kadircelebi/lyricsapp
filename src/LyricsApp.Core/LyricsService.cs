@@ -55,7 +55,7 @@ public sealed class LyricsService(IReadOnlyList<ILyricsProvider> providers, Loca
         {
             try
             {
-                await cache.SaveAsync(saveAs, result.Lyrics, cancellationToken);
+                await cache.SaveAsync(saveAs, result.Lyrics, cancellationToken, result.MatchedTrack.Duration);
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             {

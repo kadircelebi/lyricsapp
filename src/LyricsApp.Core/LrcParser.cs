@@ -55,6 +55,32 @@ public static partial class LrcParser
         return lines.OrderBy(l => l.Time).ToList();
     }
 
+    // The value of [length:3:45], [length: 03:45.20] or [length:1:02:03].
+    [GeneratedRegex(@"^\s*(?:(\d{1,2}):)?(\d{1,3}):(\d{2})(?:\.\d+)?\s*$")]
+    private static partial Regex LengthRegex();
+
+    /// <summary>The song length an .lrc file states in its [length:] tag, or null.</summary>
+    public static TimeSpan? ReadLength(string? text)
+    {
+        if (string.IsNullOrEmpty(text)) return null;
+        foreach (var raw in text.Split(["\r\n", "\r", "\n"], StringSplitOptions.None))
+        {
+            var meta = MetadataRegex().Match(raw);
+            if (!meta.Success || !meta.Groups[1].Value.Equals("length", StringComparison.OrdinalIgnoreCase)) continue;
+
+            var m = LengthRegex().Match(meta.Groups[2].Value);
+            if (!m.Success) return null;
+            var hours = m.Groups[1].Success ? int.Parse(m.Groups[1].Value, CultureInfo.InvariantCulture) : 0;
+            var length = new TimeSpan(hours, int.Parse(m.Groups[2].Value, CultureInfo.InvariantCulture), int.Parse(m.Groups[3].Value, CultureInfo.InvariantCulture));
+            return length > TimeSpan.Zero ? length : null;
+        }
+        return null;
+    }
+
+    /// <summary>The [length:m:ss] line that records which recording the lines were timed for.</summary>
+    public static string FormatLength(TimeSpan length) =>
+        $"[length:{((int)length.TotalMinutes).ToString(CultureInfo.InvariantCulture)}:{length.Seconds.ToString("D2", CultureInfo.InvariantCulture)}]";
+
     public static string Format(IEnumerable<LyricLine> lines)
     {
         var sb = new StringBuilder();

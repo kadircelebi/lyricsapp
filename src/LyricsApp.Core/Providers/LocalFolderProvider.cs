@@ -47,7 +47,9 @@ public sealed class LocalFolderProvider(string folder) : ILyricsProvider
             if (LrcParser.IsLrc(text))
             {
                 var lines = LrcParser.Parse(text);
-                if (lines.Count > 0) return new LyricsResult(new SyncedLyrics(lines, source), track);
+                // A [length:] tag says which recording the lines were timed for; without one that is simply not known.
+                if (lines.Count > 0)
+                    return new LyricsResult(new SyncedLyrics(lines, source), track with { Duration = LrcParser.ReadLength(text) });
             }
             return new LyricsResult(new PlainLyrics(text.Trim(), source), track);
         }
@@ -55,14 +57,18 @@ public sealed class LocalFolderProvider(string folder) : ILyricsProvider
     }
 
     /// <summary>Saves lyrics as .lrc (synced) or .txt (plain). Returns the written path, or null if nothing was saved.</summary>
-    public async Task<string?> SaveAsync(TrackInfo track, Lyrics lyrics, CancellationToken cancellationToken)
+    /// <param name="length">Length of the recording the lines were timed for; kept in the .lrc as a [length:] tag.</param>
+    public async Task<string?> SaveAsync(TrackInfo track, Lyrics lyrics, CancellationToken cancellationToken, TimeSpan? length = null)
     {
         if (track.IsEmpty || lyrics is InstrumentalLyrics) return null;
 
         Directory.CreateDirectory(Folder);
         var extension = lyrics is SyncedLyrics ? ".lrc" : ".txt";
         var path = Path.Combine(Folder, GetFileStem(track) + extension);
-        await File.WriteAllTextAsync(path, lyrics.ToText(), cancellationToken);
+        var text = lyrics.ToText();
+        if (lyrics is SyncedLyrics && length is { } known && known > TimeSpan.Zero && LrcParser.ReadLength(text) is null)
+            text = LrcParser.FormatLength(known) + Environment.NewLine + text;
+        await File.WriteAllTextAsync(path, text, cancellationToken);
         return path;
     }
 }

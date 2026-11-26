@@ -104,4 +104,15 @@ public static partial class TrackMatcher
     }
 
     public static bool IsAcceptable(TrackInfo query, TrackInfo candidate) => Score(query, candidate) >= MinAcceptableScore;
+
+    /// <summary>Lengths further apart than this mean another cut of the song: an intro scene, a longer ending.</summary>
+    public static readonly TimeSpan SameVersionTolerance = TimeSpan.FromSeconds(5);
+
+    /// <summary>
+    /// True when the player's recording and the one the lyrics were timed for differ in length, so the lines may run
+    /// early or late. False when either length is unknown.
+    /// </summary>
+    public static bool IsDifferentVersion(TimeSpan? playerLength, TimeSpan? lyricsLength) =>
+        playerLength is { } player && lyricsLength is { } lyrics && player > TimeSpan.Zero && lyrics > TimeSpan.Zero
+        && (player - lyrics).Duration() > SameVersionTolerance;
 }

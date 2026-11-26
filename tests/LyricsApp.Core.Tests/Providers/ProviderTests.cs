@@ -62,6 +62,61 @@ public class ProviderTests
     }
 
     [Fact]
+    public async Task Local_folder_keeps_the_length_the_lines_were_timed_for()
+    {
+        var dir = Directory.CreateTempSubdirectory("lyricsapp-test-");
+        try
+        {
+            var provider = new LocalFolderProvider(dir.FullName);
+            var track = new TrackInfo("Artist", "Song", null, TimeSpan.FromSeconds(250));
+            var lyrics = new SyncedLyrics(LrcParser.Parse("[00:01.00]one\n[00:03.00]two"), "test");
+
+            var path = await provider.SaveAsync(track, lyrics, CancellationToken.None, TimeSpan.FromSeconds(215));
+            Assert.StartsWith("[length:3:35]", await File.ReadAllTextAsync(path!));
+
+            // The lines come back unchanged, with the recording's length rather than the player's.
+            var found = await provider.FindAsync(track, CancellationToken.None);
+            Assert.Equal(lyrics.Lines, Assert.IsType<SyncedLyrics>(found?.Lyrics).Lines);
+            Assert.Equal(TimeSpan.FromSeconds(215), found?.MatchedTrack.Duration);
+
+            // A file without the tag (saved by an earlier version, or put there by hand) claims no length.
+            await provider.SaveAsync(track, lyrics, CancellationToken.None);
+            Assert.Null((await provider.FindAsync(track, CancellationToken.None))?.MatchedTrack.Duration);
+
+            // Plain text has no timing to be off.
+            var plain = await provider.SaveAsync(new TrackInfo("Artist", "Other"), new PlainLyrics("text", "test"), CancellationToken.None, TimeSpan.FromSeconds(215));
+            Assert.Equal("text", await File.ReadAllTextAsync(plain!));
+        }
+        finally
+        {
+            dir.Delete(recursive: true);
+        }
+    }
+
+    [Fact]
+    public async Task Service_caches_the_matched_recordings_length_with_the_lyrics()
+    {
+        var dir = Directory.CreateTempSubdirectory("lyricsapp-test-");
+        try
+        {
+            var cache = new LocalFolderProvider(dir.FullName);
+            // The player reports a 3:00 video; the source's record is the 2:25 album track.
+            var online = new FakeProvider("A", new SyncedLyrics(LrcParser.Parse("[00:01.00]x"), "A"), matchedLength: TimeSpan.FromSeconds(145));
+
+            var first = await new LyricsService([cache, online], cache).FindAsync(Query, CancellationToken.None);
+            Assert.Equal(TimeSpan.FromSeconds(145), first.Result?.MatchedTrack.Duration);
+
+            var again = await new LyricsService([cache], cache).FindAsync(Query, CancellationToken.None);
+            Assert.Equal(cache.Name, again.ProviderName);
+            Assert.Equal(TimeSpan.FromSeconds(145), again.Result?.MatchedTrack.Duration);
+        }
+        finally
+        {
+            dir.Delete(recursive: true);
+        }
+    }
+
+    [Fact]
     public async Task Service_prefers_later_synced_over_earlier_plain_and_caches_it()
     {
         var dir = Directory.CreateTempSubdirectory("lyricsapp-test-");
@@ -127,13 +182,13 @@ public class ProviderTests
         Assert.Equal("B", result.ProviderName);
     }
 
-    private sealed class FakeProvider(string name, Lyrics? lyrics = null, Exception? error = null) : ILyricsProvider
+    private sealed class FakeProvider(string name, Lyrics? lyrics = null, Exception? error = null, TimeSpan? matchedLength = null) : ILyricsProvider
     {
         public string Name => name;
 
         public Task<LyricsResult?> FindAsync(TrackInfo track, CancellationToken cancellationToken) =>
             error is not null
                 ? Task.FromException<LyricsResult?>(error)
-                : Task.FromResult(lyrics is null ? null : new LyricsResult(lyrics, track));
+                : Task.FromResult(lyrics is null ? null : new LyricsResult(lyrics, matchedLength is null ? track : track with { Duration = matchedLength }));
     }
 }

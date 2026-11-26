@@ -97,6 +97,21 @@ public class TrackTextTests
         Assert.True(TrackMatcher.IsAcceptable(new TrackInfo("Artist", "Anne"), new TrackInfo("Artist", "Anne Remastered")));
     }
 
+    [Theory]
+    // player seconds, lyrics seconds, different version
+    [InlineData(215, 215, false)]
+    [InlineData(218, 215, false)]   // a few seconds of silence at the end
+    [InlineData(220, 215, false)]
+    [InlineData(221, 215, true)]
+    [InlineData(250, 215, true)]    // a music video with an intro scene
+    [InlineData(200, 215, true)]    // a shortened cut
+    [InlineData(null, 215, false)]  // the player does not say how long it is
+    [InlineData(250, null, false)]  // the lyrics do not say what they were timed for
+    [InlineData(0, 215, false)]
+    public void A_clearly_different_length_means_another_version(int? player, int? lyrics, bool expected) =>
+        Assert.Equal(expected, TrackMatcher.IsDifferentVersion(
+            player is { } p ? TimeSpan.FromSeconds(p) : null, lyrics is { } l ? TimeSpan.FromSeconds(l) : null));
+
     [Fact]
     public void Prefers_exact_match_over_partial()
     {
