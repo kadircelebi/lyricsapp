@@ -46,6 +46,9 @@ internal static class NativeMethods
     public const uint WmStyleChanging = 0x007C;
     public const uint WmNcDestroy = 0x0082;
 
+    public const int VkLeftButton = 1;
+    public const int VkRightButton = 2;
+
     [DllImport("dwmapi.dll")]
     public static extern int DwmExtendFrameIntoClientArea(IntPtr hwnd, ref Margins margins);
 
@@ -56,6 +59,14 @@ internal static class NativeMethods
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool GetCursorPos(out Point point);
+
+    /// <summary>The high bit is set while the key or mouse button is down.</summary>
+    [DllImport("user32.dll")]
+    public static extern short GetAsyncKeyState(int virtualKey);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool SetWindowPos(IntPtr hwnd, IntPtr insertAfter, int x, int y, int width, int height, uint flags);
 
     [DllImport("user32.dll")]
     public static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint flags);

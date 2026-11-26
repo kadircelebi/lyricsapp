@@ -8,12 +8,13 @@
         ShowInTaskbar="False" ShowActivated="False" WindowStartupLocation="Manual"
         Topmost="{Binding Display.Topmost}"
         UseLayoutRounding="True">
-    <!-- The only clickable part of streamer mode: move and leave. Shown by StreamerWindow while the mouse is over it. -->
+    <!-- The only clickable part of streamer mode: move and leave. Shown by the main window while the mouse is over it. -->
     <Border Padding="2" CornerRadius="6" Background="#E61E1E24">
         <StackPanel Orientation="Horizontal">
-            <Button Style="{StaticResource ToolButton}" Content="&#xE7C2;" Width="22" Height="22" FontSize="11" Cursor="SizeAll"
+            <Button x:Name="MoveButton" Style="{StaticResource ToolButton}" Content="&#xE7C2;" Width="22" Height="22" FontSize="11" Cursor="SizeAll"
                     ToolTip="{local:Loc StreamerMove}" AutomationProperties.Name="{local:Loc StreamerMove}"
-                    AutomationProperties.AutomationId="StreamerMoveButton" PreviewMouseLeftButtonDown="OnMoveMouseDown" />
+                    AutomationProperties.AutomationId="StreamerMoveButton" PreviewMouseLeftButtonDown="OnMoveMouseDown"
+                    PreviewMouseMove="OnMoveMouseMove" PreviewMouseLeftButtonUp="OnMoveMouseUp" LostMouseCapture="OnMoveLostCapture" />
             <Button Style="{StaticResource ToolButton}" Content="&#xE73F;" Width="22" Height="22" FontSize="11"
                     ToolTip="{local:Loc StreamerExit}" AutomationProperties.Name="{local:Loc StreamerExit}"
                     AutomationProperties.AutomationId="StreamerExitButton" Click="OnExitClick" />

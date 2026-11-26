@@ -1,4 +1,6 @@
+using System.Globalization;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Media.Animation;
 
 namespace LyricsApp;
@@ -30,4 +32,14 @@ public static class Animate
             EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut },
         });
     }
+}
+
+/// <summary>True hides the element (collapsed), false shows it: the opposite of BooleanToVisibilityConverter.</summary>
+public sealed class BoolToCollapsedConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
+        value is true ? Visibility.Collapsed : Visibility.Visible;
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
+        value is Visibility.Collapsed;
 }

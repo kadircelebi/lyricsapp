@@ -5,17 +5,20 @@
         Title="{local:Loc MainWindowTitle}"
         Icon="/LyricsApp.ico"
         Width="460" Height="640" MinWidth="240" MinHeight="120"
-        WindowStyle="None" AllowsTransparency="True" Background="Transparent" ResizeMode="CanResize"
+        WindowStyle="None" Background="Transparent" ResizeMode="CanMinimize"
         Topmost="{Binding Display.Topmost}"
         FontFamily="Segoe UI Variable Text, Segoe UI"
         TextOptions.TextFormattingMode="Ideal"
         UseLayoutRounding="True">
-    <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="0" ResizeBorderThickness="6" GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False" />
-    </WindowChrome.WindowChrome>
+    <!--
+        No AllowsTransparency: capture programs that copy a window with BitBlt (the default in OBS) get a black picture
+        from such windows. Transparency and click-through come from WindowSurface instead, so one and the same
+        window serves the normal, lyrics-only and streamer modes and a capture stays attached across them.
+    -->
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+        <local:BoolToCollapsedConverter x:Key="BoolToCollapsed" />
 
         <ContextMenu x:Key="WindowMenu">
             <MenuItem Header="{local:Loc AlwaysOnTop}" IsCheckable="True" IsChecked="{Binding Display.Topmost}" />
@@ -39,8 +42,8 @@
                 <!-- Nearly invisible fill keeps the whole window clickable/draggable. -->
                 <Setter Property="Background" Value="#01000000" />
                 <Style.Triggers>
-                    <!-- Lyrics-only: no fill at all. Windows passes clicks on fully transparent pixels of a layered
-                         window to whatever is behind, so only the drawn letters (and their shadow) catch the mouse. -->
+                    <!-- Lyrics-only: no fill at all, so only the lines themselves take the mouse. The window lets
+                         clicks through while the pointer is not on a letter (see the code-behind). -->
                     <MultiDataTrigger>
                         <MultiDataTrigger.Conditions>
                             <Condition Binding="{Binding Display.LyricsOnly}" Value="True" />
@@ -49,6 +52,10 @@
                         <Setter Property="Background" Value="{x:Null}" />
                         <Setter Property="Cursor" Value="Hand" />
                     </MultiDataTrigger>
+                    <!-- Streamer mode: nothing to click at all, and a capture gets a fully transparent background. -->
+                    <DataTrigger Binding="{Binding Display.StreamerMode}" Value="True">
+                        <Setter Property="Background" Value="{x:Null}" />
+                    </DataTrigger>
                 </Style.Triggers>
             </Style>
         </Grid.Style>
@@ -73,6 +80,10 @@
                             </MultiDataTrigger.Conditions>
                             <Setter Property="Opacity" Value="0.55" />
                         </MultiDataTrigger>
+                        <!-- Streamer mode comes last in each style: it wins over lyrics-only. -->
+                        <DataTrigger Binding="{Binding Display.StreamerMode}" Value="True">
+                            <Setter Property="Opacity" Value="0" />
+                        </DataTrigger>
                     </Style.Triggers>
                 </Style>
             </Border.Style>
@@ -87,6 +98,10 @@
                             <Setter Property="Grid.Row" Value="0" />
                             <Setter Property="Grid.RowSpan" Value="2" />
                         </DataTrigger>
+                        <DataTrigger Binding="{Binding Display.StreamerMode}" Value="True">
+                            <Setter Property="Grid.Row" Value="1" />
+                            <Setter Property="Grid.RowSpan" Value="1" />
+                        </DataTrigger>
                     </Style.Triggers>
                 </Style>
             </local:LyricsView.Style>
@@ -96,11 +111,14 @@
                    TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24"
                    Visibility="{Binding HasStatus, Converter={StaticResource BoolToVisibility}}" />
 
-        <!-- Header: artwork, title, tools. Fades out in lyrics-only mode until hovered. -->
-        <Border x:Name="Header" Grid.Row="0" Padding="12,10,8,8" CornerRadius="10,10,0,0" Background="{StaticResource HeaderBackground}">
+        <!-- Header: artwork, title, tools. Hidden in lyrics-only mode until a line is clicked;
+             in streamer mode it is a plain song card without the tools. -->
+        <Border x:Name="Header" Grid.Row="0" Background="{StaticResource HeaderBackground}">
             <Border.Style>
                 <Style TargetType="Border">
                     <Setter Property="Opacity" Value="1" />
+                    <Setter Property="Padding" Value="12,10,8,8" />
+                    <Setter Property="CornerRadius" Value="10,10,0,0" />
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding Display.LyricsOnly}" Value="True">
                             <Setter Property="Opacity" Value="0" />
@@ -114,6 +132,11 @@
                             <Setter Property="Opacity" Value="1" />
                             <Setter Property="IsHitTestVisible" Value="True" />
                         </MultiDataTrigger>
+                        <DataTrigger Binding="{Binding Display.StreamerMode}" Value="True">
+                            <Setter Property="Opacity" Value="1" />
+                            <Setter Property="Padding" Value="12,10" />
+                            <Setter Property="CornerRadius" Value="10" />
+                        </DataTrigger>
                     </Style.Triggers>
                 </Style>
             </Border.Style>
@@ -138,10 +161,11 @@
                     <TextBlock Text="{Binding Artist}" Foreground="{StaticResource SecondaryText}" FontSize="13"
                                TextTrimming="CharacterEllipsis" ToolTip="{Binding Artist}" />
                     <TextBlock Text="{Binding ProviderName}" Foreground="{StaticResource DimText}" FontSize="11"
-                               TextTrimming="CharacterEllipsis" Margin="0,2,0,0" />
+                               TextTrimming="CharacterEllipsis" Margin="0,2,0,0"
+                               Visibility="{Binding Display.StreamerMode, Converter={StaticResource BoolToCollapsed}}" />
                 </StackPanel>
 
-                <StackPanel Grid.Column="2">
+                <StackPanel Grid.Column="2" Visibility="{Binding Display.StreamerMode, Converter={StaticResource BoolToCollapsed}}">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <ToggleButton Style="{StaticResource ToolToggle}" Content="&#xE718;" ToolTip="{local:Loc AlwaysOnTop}" AutomationProperties.Name="{local:Loc AlwaysOnTop}"
                                       IsChecked="{Binding Display.Topmost}" />
@@ -170,5 +194,18 @@
                 </StackPanel>
             </Grid>
         </Border>
+
+        <!-- Resize edges: the window has no frame of its own. Hidden in the modes that let clicks through. -->
+        <Grid x:Name="ResizeGrips" Grid.RowSpan="2"
+              MouseLeftButtonDown="OnResizeMouseDown" MouseMove="OnResizeMouseMove" MouseLeftButtonUp="OnResizeMouseUp">
+            <Rectangle Tag="Left" Width="6" HorizontalAlignment="Left" Fill="Transparent" Cursor="SizeWE" />
+            <Rectangle Tag="Right" Width="6" HorizontalAlignment="Right" Fill="Transparent" Cursor="SizeWE" />
+            <Rectangle Tag="Top" Height="6" VerticalAlignment="Top" Fill="Transparent" Cursor="SizeNS" />
+            <Rectangle Tag="Bottom" Height="6" VerticalAlignment="Bottom" Fill="Transparent" Cursor="SizeNS" />
+            <Rectangle Tag="TopLeft" Width="10" Height="10" HorizontalAlignment="Left" VerticalAlignment="Top" Fill="Transparent" Cursor="SizeNWSE" />
+            <Rectangle Tag="TopRight" Width="10" Height="10" HorizontalAlignment="Right" VerticalAlignment="Top" Fill="Transparent" Cursor="SizeNESW" />
+            <Rectangle Tag="BottomLeft" Width="10" Height="10" HorizontalAlignment="Left" VerticalAlignment="Bottom" Fill="Transparent" Cursor="SizeNESW" />
+            <Rectangle Tag="BottomRight" Width="10" Height="10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Fill="Transparent" Cursor="SizeNWSE" />
+        </Grid>
     </Grid>
 </Window>

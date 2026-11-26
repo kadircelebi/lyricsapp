@@ -14,15 +14,15 @@ public class StreamerModeTests
     [InlineData(100, 380, false, true)]    // bottom-left: top-right
     [InlineData(1400, 380, true, true)]    // bottom-right: top-left
     public void Buttons_go_to_the_corner_nearest_the_middle_of_the_screen(double left, double top, bool atLeft, bool atTop) =>
-        Assert.Equal((atLeft, atTop), StreamerWindow.ChooseControlsCorner(new Rect(left, top, 460, 640), Screen));
+        Assert.Equal((atLeft, atTop), StreamerControls.ChooseCorner(new Rect(left, top, 460, 640), Screen));
 
     [Fact]
     public void Corner_is_chosen_on_the_screen_the_window_is_on()
     {
         // A second screen to the left of the main one: its right half is still "right" there.
         var second = new Rect(-2560, 0, 2560, 1400);
-        Assert.Equal((true, false), StreamerWindow.ChooseControlsCorner(new Rect(-700, 100, 460, 640), second));
-        Assert.Equal((false, true), StreamerWindow.ChooseControlsCorner(new Rect(-2500, 700, 460, 640), second));
+        Assert.Equal((true, false), StreamerControls.ChooseCorner(new Rect(-700, 100, 460, 640), second));
+        Assert.Equal((false, true), StreamerControls.ChooseCorner(new Rect(-2500, 700, 460, 640), second));
     }
 
     [Fact]
