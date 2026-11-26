@@ -21,6 +21,9 @@ public partial class MainWindow : Window
     // Distance between the streamer buttons and the window edge.
     private const double ControlsMargin = 6;
 
+    // After the window comes up it is drawn in full again at these moments (see WindowSurface.Repaint).
+    private static readonly TimeSpan[] StartupRepaints = [TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(3)];
+
     private readonly AppSettings settings = AppSettings.Load();
     private readonly ProviderCatalog providers = new(AppSettings.SettingsFolder);
     private readonly System.Net.Http.HttpClient shazamHttp = ShazamClient.CreateHttpClient();
@@ -75,6 +78,20 @@ public partial class MainWindow : Window
         {
             UpdatePointerTracking();
             await viewModel.StartAsync();
+        };
+        ContentRendered += (_, _) =>
+        {
+            surface.Repaint();
+            foreach (var delay in StartupRepaints)
+            {
+                var timer = new DispatcherTimer { Interval = delay };
+                timer.Tick += (_, _) =>
+                {
+                    timer.Stop();
+                    surface.Repaint();
+                };
+                timer.Start();
+            }
         };
         StateChanged += (_, _) =>
         {

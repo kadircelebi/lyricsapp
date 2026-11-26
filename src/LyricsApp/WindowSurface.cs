@@ -94,6 +94,16 @@ public sealed class WindowSurface
         return result;
     }
 
+    /// <summary>
+    /// Asks for the whole window to be drawn again. WPF only sends the parts that changed to the window's surface,
+    /// so pixels that got there some other way (seen once: a first frame that never arrived, leaving a picture of
+    /// the desktop behind everything that did not change) would otherwise stay until that part changes.
+    /// </summary>
+    public void Repaint()
+    {
+        if (handle != IntPtr.Zero) NativeMethods.InvalidateRect(handle, IntPtr.Zero, false);
+    }
+
     /// <summary>Moves and sizes the window in one step, in screen pixels.</summary>
     public void SetBounds(Rect pixels)
     {
