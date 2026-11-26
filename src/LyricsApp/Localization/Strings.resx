@@ -126,6 +126,18 @@
   <data name="SettingsStreamerProgress" xml:space="preserve">
     <value>Show the elapsed time, the song's length and a progress bar on the song card</value>
   </data>
+  <data name="SettingsStreamerMediaButtons" xml:space="preserve">
+    <value>Show previous, play/pause and next buttons next to the move button</value>
+  </data>
+  <data name="StreamerPrevious" xml:space="preserve">
+    <value>Previous</value>
+  </data>
+  <data name="StreamerPlayPause" xml:space="preserve">
+    <value>Play / pause</value>
+  </data>
+  <data name="StreamerNext" xml:space="preserve">
+    <value>Next</value>
+  </data>
   <data name="StreamerMove" xml:space="preserve">
     <value>Move (drag)</value>
   </data>

@@ -277,7 +277,12 @@ public partial class MainWindow : Window
             if (isDraggedByControls) return;
             if (inside && streamerControls is not { IsVisible: true })
             {
-                streamerControls ??= new StreamerControls(this) { Owner = this, DataContext = viewModel };
+                if (streamerControls is null)
+                {
+                    streamerControls = new StreamerControls(this, viewModel) { Owner = this };
+                    // Its width follows the "player buttons" setting.
+                    streamerControls.SizeChanged += (_, _) => PositionStreamerControls();
+                }
                 ChooseStreamerControlsCorner();
                 PositionStreamerControls();
                 streamerControls.Show();
@@ -305,7 +310,7 @@ public partial class MainWindow : Window
         return hit is TextBlock text && text.GetPositionFromPoint(text.PointFromScreen(screenPoint), snapToText: false) is not null;
     }
 
-    // ---- Streamer mode: the two buttons ----
+    // ---- Streamer mode: the buttons ----
 
     /// <summary>
     /// The buttons go to the corner nearest to the middle of the screen the window is on, so they stay within reach

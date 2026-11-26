@@ -8,9 +8,33 @@
         ShowInTaskbar="False" ShowActivated="False" WindowStartupLocation="Manual"
         Topmost="{Binding Display.Topmost}"
         UseLayoutRounding="True">
-    <!-- The only clickable part of streamer mode: move and leave. Shown by the main window while the mouse is over it. -->
+    <!-- The only clickable part of streamer mode: the player's buttons (optional), move and leave.
+         Shown by the main window while the mouse is over it. The window's width is set in code to fit. -->
     <Border Padding="2" CornerRadius="6" Background="#E61E1E24">
         <StackPanel Orientation="Horizontal">
+            <StackPanel x:Name="MediaButtons" Orientation="Horizontal">
+                <Button Style="{StaticResource ToolButton}" Content="&#xE892;" Width="22" Height="22" FontSize="11"
+                        ToolTip="{local:Loc StreamerPrevious}" AutomationProperties.Name="{local:Loc StreamerPrevious}"
+                        AutomationProperties.AutomationId="StreamerPreviousButton" Click="OnPreviousClick" />
+                <Button Width="22" Height="22" FontSize="11"
+                        ToolTip="{local:Loc StreamerPlayPause}" AutomationProperties.Name="{local:Loc StreamerPlayPause}"
+                        AutomationProperties.AutomationId="StreamerPlayPauseButton" Click="OnPlayPauseClick">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource ToolButton}">
+                            <Setter Property="Content" Value="&#xE768;" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsPlaying}" Value="True">
+                                    <Setter Property="Content" Value="&#xE769;" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button Style="{StaticResource ToolButton}" Content="&#xE893;" Width="22" Height="22" FontSize="11"
+                        ToolTip="{local:Loc StreamerNext}" AutomationProperties.Name="{local:Loc StreamerNext}"
+                        AutomationProperties.AutomationId="StreamerNextButton" Click="OnNextClick" />
+                <Border Width="1" Margin="3,5" Background="#33FFFFFF" />
+            </StackPanel>
             <Button x:Name="MoveButton" Style="{StaticResource ToolButton}" Content="&#xE7C2;" Width="22" Height="22" FontSize="11" Cursor="SizeAll"
                     ToolTip="{local:Loc StreamerMove}" AutomationProperties.Name="{local:Loc StreamerMove}"
                     AutomationProperties.AutomationId="StreamerMoveButton" PreviewMouseLeftButtonDown="OnMoveMouseDown"

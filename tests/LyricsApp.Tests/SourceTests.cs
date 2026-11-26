@@ -153,6 +153,17 @@ public class SourceTests
     });
 
     [Fact]
+    public void The_player_buttons_pass_their_command_to_the_media_source() => OnDispatcherThread(() =>
+    {
+        var source = new FakeSource();
+        using var viewModel = Create(new AppSettings(), source, new FakeLyrics(null, null));
+        viewModel.SendMediaCommand(MediaCommand.Previous);
+        viewModel.SendMediaCommand(MediaCommand.PlayPause);
+        viewModel.SendMediaCommand(MediaCommand.Next);
+        Assert.Equal([MediaCommand.Previous, MediaCommand.PlayPause, MediaCommand.Next], source.Commands);
+    });
+
+    [Fact]
     public void The_source_menu_lists_automatic_first_and_marks_the_followed_player()
     {
         var players = new[] { new MediaPlayerInfo("music-id", "Music", IsFollowed: true), new MediaPlayerInfo("browser-id", "Web_Browser", IsFollowed: false) };
@@ -288,6 +299,14 @@ public class SourceTests
         public void SetIgnoredApps(IEnumerable<string> apps) => Ignored = [.. apps];
 
         public void ReportNoLyrics() => NoLyricsReports++;
+
+        public List<MediaCommand> Commands { get; } = [];
+
+        public Task SendAsync(MediaCommand command)
+        {
+            Commands.Add(command);
+            return Task.CompletedTask;
+        }
 
         public Task StartAsync() => Task.CompletedTask;
 

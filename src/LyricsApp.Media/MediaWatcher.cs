@@ -103,6 +103,26 @@ public sealed class MediaWatcher : IMediaSource
         Choose();
     }
 
+    public async Task SendAsync(MediaCommand command)
+    {
+        GlobalSystemMediaTransportControlsSession? session;
+        lock (gate) session = followed?.Session;
+        if (session is null) return;
+        try
+        {
+            _ = command switch
+            {
+                MediaCommand.Previous => await session.TrySkipPreviousAsync(),
+                MediaCommand.Next => await session.TrySkipNextAsync(),
+                _ => await session.TryTogglePlayPauseAsync(),
+            };
+        }
+        catch (Exception)
+        {
+            // The player closed, or does not take this command.
+        }
+    }
+
     public async Task StartAsync()
     {
         var created = await GlobalSystemMediaTransportControlsSessionManager.RequestAsync();

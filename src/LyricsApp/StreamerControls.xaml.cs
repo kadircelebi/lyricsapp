@@ -2,23 +2,33 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
+using LyricsApp.Media;
 
 namespace LyricsApp;
 
 /// <summary>
-/// The move and leave buttons of streamer mode, in a small window of their own on top of the main window,
-/// which lets every click through in that mode. Being a separate window keeps them out of a capture too.
+/// The buttons of streamer mode, in a small window of their own on top of the main window, which lets every click
+/// through in that mode: previous, play/pause and next for the player (when switched on), move and leave.
+/// Being a separate window keeps them out of a capture too.
 /// </summary>
 public partial class StreamerControls : Window
 {
     private readonly MainWindow mainWindow;
+    private readonly MainViewModel viewModel;
     private NativeMethods.Point dragStartCursor;
     private Point dragStartWindow;
 
-    public StreamerControls(MainWindow mainWindow)
+    public StreamerControls(MainWindow mainWindow, MainViewModel viewModel)
     {
         InitializeComponent();
         this.mainWindow = mainWindow;
+        this.viewModel = viewModel;
+        DataContext = viewModel;
+        viewModel.Display.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName is nameof(DisplaySettings.StreamerMediaButtons)) ApplyMediaButtons();
+        };
+        ApplyMediaButtons();
         SourceInitialized += (_, _) =>
         {
             // Clicking a button must not take the keyboard away from the game or the program being streamed.
@@ -27,6 +37,16 @@ public partial class StreamerControls : Window
             NativeMethods.SetWindowLongPtr(handle, NativeMethods.GwlExStyle,
                 new IntPtr(styles | NativeMethods.WsExNoActivate | NativeMethods.WsExToolWindow));
         };
+    }
+
+    /// <summary>Width of the window: move and leave, plus the three player buttons and their divider when shown.</summary>
+    public static double WidthFor(bool mediaButtons) => mediaButtons ? 121 : 48;
+
+    private void ApplyMediaButtons()
+    {
+        var show = viewModel.Display.StreamerMediaButtons;
+        MediaButtons.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+        Width = WidthFor(show);
     }
 
     /// <summary>
@@ -71,4 +91,10 @@ public partial class StreamerControls : Window
     private void OnMoveLostCapture(object sender, MouseEventArgs e) => mainWindow.OnControlsDragEnded();
 
     private void OnExitClick(object sender, RoutedEventArgs e) => mainWindow.LeaveStreamerMode();
+
+    private void OnPreviousClick(object sender, RoutedEventArgs e) => viewModel.SendMediaCommand(MediaCommand.Previous);
+
+    private void OnPlayPauseClick(object sender, RoutedEventArgs e) => viewModel.SendMediaCommand(MediaCommand.PlayPause);
+
+    private void OnNextClick(object sender, RoutedEventArgs e) => viewModel.SendMediaCommand(MediaCommand.Next);
 }

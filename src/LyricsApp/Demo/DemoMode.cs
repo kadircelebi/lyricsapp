@@ -108,6 +108,8 @@ public static class DemoMode
         {
         }
 
+        public Task SendAsync(MediaCommand command) => Task.CompletedTask;
+
         public async Task StartAsync()
         {
             CurrentTrack = new MediaTrack("MrW.Demo", Track, await CreateCoverAsync());

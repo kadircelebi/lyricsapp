@@ -7,6 +7,14 @@ namespace LyricsApp.Media;
 /// <param name="Name">The name to show.</param>
 public sealed record MediaPlayerInfo(string App, string Name, bool IsFollowed);
 
+/// <summary>What the buttons of streamer mode can ask of the followed player.</summary>
+public enum MediaCommand
+{
+    Previous,
+    PlayPause,
+    Next,
+}
+
 /// <summary>Where the "now playing" song comes from: the real Windows media session, or a demo for screenshots.</summary>
 public interface IMediaSource : IDisposable
 {
@@ -34,6 +42,9 @@ public interface IMediaSource : IDisposable
 
     /// <summary>The current song was searched and has no lyrics: another playing song may take its place.</summary>
     void ReportNoLyrics();
+
+    /// <summary>Passes a command to the followed player, as the media keys would. Nothing happens when none is followed.</summary>
+    Task SendAsync(MediaCommand command);
 
     Task StartAsync();
 

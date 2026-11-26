@@ -11,6 +11,7 @@ public sealed class DisplaySettings : ObservableObject
     private bool lyricsOnly;
     private bool streamerMode;
     private bool streamerProgress = true;
+    private bool streamerMediaButtons = true;
     private bool versionNotice = true;
     private double backgroundOpacity = 1.0;
     private bool focusMode = true;
@@ -40,6 +41,9 @@ public sealed class DisplaySettings : ObservableObject
 
     /// <summary>In streamer mode, the song card shows the elapsed time, the song's length and a bar that fills as it plays.</summary>
     public bool StreamerProgress { get => streamerProgress; set => Set(ref streamerProgress, value); }
+
+    /// <summary>In streamer mode, previous, play/pause and next buttons for the player sit next to the move button.</summary>
+    public bool StreamerMediaButtons { get => streamerMediaButtons; set => Set(ref streamerMediaButtons, value); }
 
     /// <summary>
     /// Say so when the player's recording is longer or shorter than the one the lyrics were timed for (a music video

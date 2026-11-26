@@ -126,6 +126,18 @@
   <data name="SettingsStreamerProgress" xml:space="preserve">
     <value>Şarkı kartında geçen süreyi, şarkının uzunluğunu ve ilerleme çubuğunu göster</value>
   </data>
+  <data name="SettingsStreamerMediaButtons" xml:space="preserve">
+    <value>Taşıma düğmesinin yanında önceki, oynat/duraklat ve sonraki düğmelerini göster</value>
+  </data>
+  <data name="StreamerPrevious" xml:space="preserve">
+    <value>Önceki</value>
+  </data>
+  <data name="StreamerPlayPause" xml:space="preserve">
+    <value>Oynat / duraklat</value>
+  </data>
+  <data name="StreamerNext" xml:space="preserve">
+    <value>Sonraki</value>
+  </data>
   <data name="StreamerMove" xml:space="preserve">
     <value>Taşı (sürükleyin)</value>
   </data>

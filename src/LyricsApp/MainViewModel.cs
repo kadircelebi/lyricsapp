@@ -229,6 +229,9 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         watcher.PinnedApp = settings.PinnedApp?.Id;
     }
 
+    /// <summary>Previous, play/pause or next for the player the lyrics follow (the buttons of streamer mode).</summary>
+    public void SendMediaCommand(MediaCommand command) => _ = watcher.SendAsync(command);
+
     public string OffsetText => Strings.OffsetSeconds(offsetSeconds == 0
         ? "0"
         : offsetSeconds.ToString("+0.0;-0.0", CultureInfo.CurrentCulture));

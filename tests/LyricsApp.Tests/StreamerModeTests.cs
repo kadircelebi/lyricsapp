@@ -48,6 +48,25 @@ public class StreamerModeTests
     }
 
     [Fact]
+    public void The_player_buttons_are_on_by_default_and_can_be_switched_off()
+    {
+        Assert.True(new DisplaySettings().StreamerMediaButtons);
+        // Settings files written before the option existed.
+        Assert.True(JsonSerializer.Deserialize<DisplaySettings>("""{ "StreamerMode": true }""")!.StreamerMediaButtons);
+
+        var saved = JsonSerializer.Serialize(new DisplaySettings { StreamerMediaButtons = false });
+        Assert.False(JsonSerializer.Deserialize<DisplaySettings>(saved)!.StreamerMediaButtons);
+    }
+
+    [Fact]
+    public void The_buttons_window_is_wider_with_the_player_buttons()
+    {
+        // Five 22-pixel buttons, a 7-pixel divider and 2 pixels of padding on each side; two buttons without them.
+        Assert.Equal(5 * 22 + 7 + 4, StreamerControls.WidthFor(mediaButtons: true));
+        Assert.Equal(2 * 22 + 4, StreamerControls.WidthFor(mediaButtons: false));
+    }
+
+    [Fact]
     public void Switching_streamer_mode_is_announced_once()
     {
         var display = new DisplaySettings();

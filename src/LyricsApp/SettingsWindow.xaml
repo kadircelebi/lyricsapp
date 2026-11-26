@@ -94,6 +94,9 @@
             <CheckBox Margin="22,6,0,4" IsChecked="{Binding StreamerProgress}" AutomationProperties.AutomationId="StreamerProgressBox">
                 <TextBlock TextWrapping="Wrap" Foreground="{StaticResource PrimaryText}" Text="{local:Loc SettingsStreamerProgress}" />
             </CheckBox>
+            <CheckBox Margin="22,2,0,4" IsChecked="{Binding StreamerMediaButtons}" AutomationProperties.AutomationId="StreamerMediaButtonsBox">
+                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource PrimaryText}" Text="{local:Loc SettingsStreamerMediaButtons}" />
+            </CheckBox>
             <TextBlock Style="{StaticResource Label}">
                 <Run Text="{local:Loc BackgroundOpacity}" />
                 <Run Text="{Binding BackgroundOpacity, StringFormat={}{0:P0}, Mode=OneWay}" />
