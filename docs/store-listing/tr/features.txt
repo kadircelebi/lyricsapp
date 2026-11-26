@@ -2,6 +2,7 @@
 Senkron sözler, o an söylenen satır vurgulanır
 Karaoke odak: yalnızca söylenen satır ve çevresi görünür
 Saydam "sadece sözler" modu, tıklamalar harflerin dışından arkaya geçer
+Yayıncı modu: OBS'in yakalayabildiği, tıklamaları arkaya geçiren saydam pencere
 Satır dolum efekti
 Yazı tipi, boyut, renk, gölge ve hazır stiller
 Her zaman üstte

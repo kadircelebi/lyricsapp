@@ -2,6 +2,7 @@ Detects the song that is playing: Spotify, YouTube in your browser, Windows Medi
 Synced lyrics with the current line highlighted
 Karaoke focus: only the current line and its neighbours stay visible
 Transparent lyrics-only mode, clicks that miss the letters go through
+Streamer mode: a transparent, click-through window that OBS can capture
 Line fill effect
 Font, size, colours, shadow and ready-made styles
 Always on top

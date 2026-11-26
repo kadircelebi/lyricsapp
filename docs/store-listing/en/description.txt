@@ -6,6 +6,8 @@ With synced lyrics, the line being sung is highlighted and the window scrolls al
 
 Lyrics-only mode turns the window fully transparent so the lyrics float on your desktop. Clicks that miss the letters go through to the window behind, so the lyrics stay on screen while you work, play or watch videos without getting in the way. Click a line to bring the controls back.
 
+Streamer mode is made for OBS and other capture programs: just the song and the lyrics on a transparent window. Every click goes through to whatever is behind it, and two small buttons to move the window or leave the mode appear only while the mouse is over it. In OBS, add it as a Window Capture and choose the capture method "Windows 10 (1903 and up)" for a transparent background.
+
 Make it yours: font, size, colours for the current and other lines, shadow or glow, background opacity, always on top. Or pick a ready-made style: Classic, Karaoke yellow, Neon or Plain. If the lyrics run a little ahead of or behind the song, shift the timing in half-second steps.
 
 Lyrics you find are saved to your Music\Lyrics folder as .lrc or .txt files, so replays need no internet. You can drop your own .lrc files there too.
