@@ -111,6 +111,24 @@
   <data name="SettingsLyricsOnly" xml:space="preserve">
     <value>Sadece sözler: saydam pencere, harflerin dışına yapılan tıklamalar arkaya geçer. Bir satıra tıklayınca kontroller görünür, çift tıklama modu kapatır.</value>
   </data>
+  <data name="MenuStreamerMode" xml:space="preserve">
+    <value>Yayıncı modu</value>
+  </data>
+  <data name="ToolStreamerMode" xml:space="preserve">
+    <value>Yayıncı modu (OBS ve benzeri yakalama programları için sade pencere)</value>
+  </data>
+  <data name="SettingsStreamerMode" xml:space="preserve">
+    <value>Yayıncı modu: saydam pencerede yalnızca şarkı adı, sanatçı ve sözler; bütün tıklamalar arkadaki pencereye geçer</value>
+  </data>
+  <data name="StreamerModeHint" xml:space="preserve">
+    <value>Pencere yakalama için yapıldı. Fareyle pencerenin üzerine gelince bir köşede iki küçük düğme çıkar: taşı ve moddan çık. OBS'te Pencere Yakalama kaynağı ekleyin; saydam arka plan için yakalama yöntemi olarak "Windows 10 (1903 ve üstü)" seçin. BitBlt yönteminde arka plan siyah görünür.</value>
+  </data>
+  <data name="StreamerMove" xml:space="preserve">
+    <value>Taşı (sürükleyin)</value>
+  </data>
+  <data name="StreamerExit" xml:space="preserve">
+    <value>Yayıncı modundan çık</value>
+  </data>
   <data name="BackgroundOpacity" xml:space="preserve">
     <value>Arka plan opaklığı:</value>
   </data>

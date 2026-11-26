@@ -86,6 +86,11 @@
             <CheckBox IsChecked="{Binding LyricsOnly}">
                 <TextBlock TextWrapping="Wrap" Foreground="{StaticResource PrimaryText}" Text="{local:Loc SettingsLyricsOnly}" />
             </CheckBox>
+            <CheckBox IsChecked="{Binding StreamerMode}" AutomationProperties.AutomationId="StreamerModeBox">
+                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource PrimaryText}" Text="{local:Loc SettingsStreamerMode}" />
+            </CheckBox>
+            <TextBlock TextWrapping="Wrap" Margin="22,2,0,0" FontSize="12" Foreground="{StaticResource DimText}"
+                       Text="{local:Loc StreamerModeHint}" />
             <TextBlock Style="{StaticResource Label}">
                 <Run Text="{local:Loc BackgroundOpacity}" />
                 <Run Text="{Binding BackgroundOpacity, StringFormat={}{0:P0}, Mode=OneWay}" />

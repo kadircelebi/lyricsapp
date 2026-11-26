@@ -1,0 +1,65 @@
+<UserControl x:Class="LyricsApp.LyricsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:LyricsApp">
+    <!-- The lyric lines, shared by the main window and the streamer window. DataContext: MainViewModel. -->
+    <ScrollViewer x:Name="LyricsScroller"
+                  PreviewMouseWheel="OnLyricsUserScroll" PreviewMouseDown="OnLyricsUserScroll">
+        <ScrollViewer.Style>
+            <Style TargetType="ScrollViewer">
+                <!-- Hidden: still scrolls with the mouse wheel, without a light system scrollbar on the dark window. -->
+                <Setter Property="VerticalScrollBarVisibility" Value="Hidden" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsFocusView}" Value="True">
+                        <Setter Property="VerticalScrollBarVisibility" Value="Disabled" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </ScrollViewer.Style>
+
+        <ItemsControl x:Name="LyricsList" ItemsSource="{Binding Lines}" Margin="20,16">
+            <ItemsControl.Style>
+                <Style TargetType="ItemsControl">
+                    <Setter Property="VerticalAlignment" Value="Top" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsFocusView}" Value="True">
+                            <Setter Property="VerticalAlignment" Value="Center" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ItemsControl.Style>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock x:Name="Line" Text="{Binding Text}" TextWrapping="Wrap" TextAlignment="Center" Margin="0,4"
+                               FontFamily="{Binding DataContext.Display.FontFamilyValue, RelativeSource={RelativeSource AncestorType=local:LyricsView}}"
+                               FontSize="{Binding DataContext.Display.InactiveFontSize, RelativeSource={RelativeSource AncestorType=local:LyricsView}}"
+                               Foreground="{Binding DataContext.Display.InactiveBrush, RelativeSource={RelativeSource AncestorType=local:LyricsView}}"
+                               local:Animate.Opacity="{Binding Emphasis}" />
+                    <DataTemplate.Triggers>
+                        <!-- Plain (unsynced) lyrics: everything readable at full colour. -->
+                        <DataTrigger Binding="{Binding DataContext.IsSynced, RelativeSource={RelativeSource AncestorType=local:LyricsView}}" Value="False">
+                            <Setter TargetName="Line" Property="Foreground" Value="{Binding DataContext.Display.ActiveBrush, RelativeSource={RelativeSource AncestorType=local:LyricsView}}" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IsHidden}" Value="True">
+                            <Setter TargetName="Line" Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IsActive}" Value="True">
+                            <Setter TargetName="Line" Property="Foreground" Value="{Binding DataContext.Display.ActiveBrush, RelativeSource={RelativeSource AncestorType=local:LyricsView}}" />
+                            <Setter TargetName="Line" Property="FontSize" Value="{Binding DataContext.Display.FontSize, RelativeSource={RelativeSource AncestorType=local:LyricsView}}" />
+                            <Setter TargetName="Line" Property="FontWeight" Value="SemiBold" />
+                            <Setter TargetName="Line" Property="Margin" Value="0,8" />
+                        </DataTrigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsActive}" Value="True" />
+                                <Condition Binding="{Binding DataContext.Display.LineFill, RelativeSource={RelativeSource AncestorType=local:LyricsView}}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <!-- Bound, not a resource: resources get frozen and the sweep could not move. -->
+                            <Setter TargetName="Line" Property="Foreground" Value="{Binding FillBrush, RelativeSource={RelativeSource AncestorType=local:LyricsView}}" />
+                        </MultiDataTrigger>
+                    </DataTemplate.Triggers>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </ScrollViewer>
+</UserControl>

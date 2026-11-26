@@ -9,6 +9,7 @@ public sealed class DisplaySettings : ObservableObject
 {
     private bool topmost;
     private bool lyricsOnly;
+    private bool streamerMode;
     private double backgroundOpacity = 1.0;
     private bool focusMode = true;
     private int contextLines = 2;
@@ -28,6 +29,12 @@ public sealed class DisplaySettings : ObservableObject
 
     /// <summary>Transparent window with no header: only the lyrics float on the desktop. Controls appear on hover.</summary>
     public bool LyricsOnly { get => lyricsOnly; set => Set(ref lyricsOnly, value); }
+
+    /// <summary>
+    /// Streamer mode: song name, artist and lyrics on a transparent window that capture programs (OBS) can read,
+    /// with nothing to click but a small move button and a leave button shown on hover.
+    /// </summary>
+    public bool StreamerMode { get => streamerMode; set => Set(ref streamerMode, value); }
 
     /// <summary>Background opacity in normal mode (0 = fully transparent, 1 = solid).</summary>
     public double BackgroundOpacity { get => backgroundOpacity; set => Set(ref backgroundOpacity, Math.Clamp(value, 0, 1)); }

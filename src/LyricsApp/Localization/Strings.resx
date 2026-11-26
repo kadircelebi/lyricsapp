@@ -111,6 +111,24 @@
   <data name="SettingsLyricsOnly" xml:space="preserve">
     <value>Lyrics only: transparent window, clicks that miss the letters go through. Click a line to show the controls, double-click to leave the mode.</value>
   </data>
+  <data name="MenuStreamerMode" xml:space="preserve">
+    <value>Streamer mode</value>
+  </data>
+  <data name="ToolStreamerMode" xml:space="preserve">
+    <value>Streamer mode (plain window for OBS and other capture programs)</value>
+  </data>
+  <data name="SettingsStreamerMode" xml:space="preserve">
+    <value>Streamer mode: only the song name, the artist and the lyrics on a transparent window; every click goes through to what is behind it</value>
+  </data>
+  <data name="StreamerModeHint" xml:space="preserve">
+    <value>Made for window capture. Move the mouse over the window to get two small buttons in one corner: move and leave the mode. In OBS add a Window Capture source; for a transparent background choose the capture method "Windows 10 (1903 and up)". With the BitBlt method the background comes out black.</value>
+  </data>
+  <data name="StreamerMove" xml:space="preserve">
+    <value>Move (drag)</value>
+  </data>
+  <data name="StreamerExit" xml:space="preserve">
+    <value>Leave streamer mode</value>
+  </data>
   <data name="BackgroundOpacity" xml:space="preserve">
     <value>Background opacity:</value>
   </data>

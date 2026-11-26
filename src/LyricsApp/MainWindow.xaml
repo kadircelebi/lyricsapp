@@ -22,6 +22,7 @@
             <MenuItem Header="{local:Loc MenuLyricsOnly}" IsCheckable="True" IsChecked="{Binding Display.LyricsOnly}" />
             <MenuItem Header="{local:Loc MenuFocusMode}" IsCheckable="True" IsChecked="{Binding Display.FocusMode}" />
             <MenuItem Header="{local:Loc MenuLineFill}" IsCheckable="True" IsChecked="{Binding Display.LineFill}" />
+            <MenuItem Header="{local:Loc MenuStreamerMode}" IsCheckable="True" IsChecked="{Binding Display.StreamerMode}" />
             <Separator />
             <MenuItem Header="{local:Loc RetrySearch}" Click="OnRetryClick" />
             <MenuItem Header="{local:Loc OpenLyricsFolder}" Click="OnOpenFolderClick" />
@@ -78,77 +79,18 @@
         </Border>
 
         <!-- Lyrics -->
-        <ScrollViewer x:Name="LyricsScroller" Grid.Row="1"
-                      PreviewMouseWheel="OnLyricsUserScroll" PreviewMouseDown="OnLyricsUserScroll">
-            <ScrollViewer.Style>
-                <Style TargetType="ScrollViewer">
-                    <!-- Hidden: still scrolls with the mouse wheel, without a light system scrollbar on the dark window. -->
-                    <Setter Property="VerticalScrollBarVisibility" Value="Hidden" />
+        <local:LyricsView x:Name="Lyrics" Grid.Row="1">
+            <local:LyricsView.Style>
+                <Style TargetType="local:LyricsView">
                     <Style.Triggers>
-                        <DataTrigger Binding="{Binding IsFocusView}" Value="True">
-                            <Setter Property="VerticalScrollBarVisibility" Value="Disabled" />
-                        </DataTrigger>
                         <DataTrigger Binding="{Binding Display.LyricsOnly}" Value="True">
                             <Setter Property="Grid.Row" Value="0" />
                             <Setter Property="Grid.RowSpan" Value="2" />
-                            <Setter Property="VerticalScrollBarVisibility" Value="Hidden" />
                         </DataTrigger>
-                        <MultiDataTrigger>
-                            <MultiDataTrigger.Conditions>
-                                <Condition Binding="{Binding Display.LyricsOnly}" Value="True" />
-                                <Condition Binding="{Binding IsFocusView}" Value="True" />
-                            </MultiDataTrigger.Conditions>
-                            <Setter Property="VerticalScrollBarVisibility" Value="Disabled" />
-                        </MultiDataTrigger>
                     </Style.Triggers>
                 </Style>
-            </ScrollViewer.Style>
-
-            <ItemsControl x:Name="LyricsList" ItemsSource="{Binding Lines}" Margin="20,16">
-                <ItemsControl.Style>
-                    <Style TargetType="ItemsControl">
-                        <Setter Property="VerticalAlignment" Value="Top" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsFocusView}" Value="True">
-                                <Setter Property="VerticalAlignment" Value="Center" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </ItemsControl.Style>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock x:Name="Line" Text="{Binding Text}" TextWrapping="Wrap" TextAlignment="Center" Margin="0,4"
-                                   FontFamily="{Binding DataContext.Display.FontFamilyValue, RelativeSource={RelativeSource AncestorType=Window}}"
-                                   FontSize="{Binding DataContext.Display.InactiveFontSize, RelativeSource={RelativeSource AncestorType=Window}}"
-                                   Foreground="{Binding DataContext.Display.InactiveBrush, RelativeSource={RelativeSource AncestorType=Window}}"
-                                   local:Animate.Opacity="{Binding Emphasis}" />
-                        <DataTemplate.Triggers>
-                            <!-- Plain (unsynced) lyrics: everything readable at full colour. -->
-                            <DataTrigger Binding="{Binding DataContext.IsSynced, RelativeSource={RelativeSource AncestorType=Window}}" Value="False">
-                                <Setter TargetName="Line" Property="Foreground" Value="{Binding DataContext.Display.ActiveBrush, RelativeSource={RelativeSource AncestorType=Window}}" />
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding IsHidden}" Value="True">
-                                <Setter TargetName="Line" Property="Visibility" Value="Collapsed" />
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                <Setter TargetName="Line" Property="Foreground" Value="{Binding DataContext.Display.ActiveBrush, RelativeSource={RelativeSource AncestorType=Window}}" />
-                                <Setter TargetName="Line" Property="FontSize" Value="{Binding DataContext.Display.FontSize, RelativeSource={RelativeSource AncestorType=Window}}" />
-                                <Setter TargetName="Line" Property="FontWeight" Value="SemiBold" />
-                                <Setter TargetName="Line" Property="Margin" Value="0,8" />
-                            </DataTrigger>
-                            <MultiDataTrigger>
-                                <MultiDataTrigger.Conditions>
-                                    <Condition Binding="{Binding IsActive}" Value="True" />
-                                    <Condition Binding="{Binding DataContext.Display.LineFill, RelativeSource={RelativeSource AncestorType=Window}}" Value="True" />
-                                </MultiDataTrigger.Conditions>
-                                <!-- Bound, not a resource: resources get frozen and the sweep could not move. -->
-                                <Setter TargetName="Line" Property="Foreground" Value="{Binding FillBrush, RelativeSource={RelativeSource AncestorType=Window}}" />
-                            </MultiDataTrigger>
-                        </DataTemplate.Triggers>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
+            </local:LyricsView.Style>
+        </local:LyricsView>
 
         <TextBlock Grid.Row="1" Text="{Binding Status}" Foreground="{StaticResource SecondaryText}" FontSize="14"
                    TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24"
@@ -213,6 +155,8 @@
                         <Button Style="{StaticResource ToolButton}" Content="&#xE8BB;" ToolTip="{local:Loc Close}" AutomationProperties.Name="{local:Loc Close}" Click="OnCloseClick" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <ToggleButton Style="{StaticResource ToolToggle}" Content="&#xE93E;" Height="24" ToolTip="{local:Loc ToolStreamerMode}" AutomationProperties.Name="{local:Loc ToolStreamerMode}"
+                                      AutomationProperties.AutomationId="StreamerModeButton" IsChecked="{Binding Display.StreamerMode}" />
                         <Button Style="{StaticResource ToolButton}" Content="&#xE72C;" Height="24" ToolTip="{local:Loc RetrySearch}" AutomationProperties.Name="{local:Loc RetrySearch}" Click="OnRetryClick" />
                         <Button Style="{StaticResource ToolButton}" Content="&#xE838;" Height="24" ToolTip="{local:Loc OpenLyricsFolder}" AutomationProperties.Name="{local:Loc OpenLyricsFolder}" Click="OnOpenFolderClick" />
                         <StackPanel Orientation="Horizontal" Visibility="{Binding IsSynced, Converter={StaticResource BoolToVisibility}}">

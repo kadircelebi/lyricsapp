@@ -1,9 +1,7 @@
 using System.ComponentModel;
 using System.Windows;
-using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Effects;
 using LyricsApp.Core;
 using LyricsApp.Core.Providers;
 using LyricsApp.Core.Recognition;
@@ -13,23 +11,14 @@ namespace LyricsApp;
 
 public partial class MainWindow : Window
 {
-    private static readonly TimeSpan ManualScrollHold = TimeSpan.FromSeconds(4);
-    private static readonly TimeSpan ScrollAnimationDuration = TimeSpan.FromMilliseconds(300);
-
     private readonly AppSettings settings = AppSettings.Load();
     private readonly ProviderCatalog providers = new(AppSettings.SettingsFolder);
     private readonly System.Net.Http.HttpClient shazamHttp = ShazamClient.CreateHttpClient();
     private readonly MainViewModel viewModel;
-    private readonly LinearGradientBrush fillBrush;
-    private readonly DropShadowEffect shadow = new() { Direction = 315 };
 
     private readonly System.Windows.Threading.DispatcherTimer hideChromeTimer = new() { Interval = TimeSpan.FromSeconds(1.5) };
     private SettingsWindow? settingsWindow;
-    private DateTime lastUserScroll = DateTime.MinValue;
-    private double scrollFrom, scrollTo;
-    private DateTime scrollStart;
-    private bool scrollAnimating;
-    private bool fillRendering;
+    private StreamerWindow? streamerWindow;
 
     public MainWindow()
     {
@@ -51,17 +40,9 @@ public partial class MainWindow : Window
                 ct => LoopbackAudio.ReadAsync(watcher.CurrentTrack?.SourceApp, ct));
             viewModel = new MainViewModel(settings, watcher, service, recognizer, TrackOffsets.Load(AppSettings.OffsetsPath), Dispatcher);
         }
-        viewModel.ActiveLineChanged += (_, index) => ScrollToLine(index);
-        viewModel.PropertyChanged += OnViewModelPropertyChanged;
         settings.Display.PropertyChanged += OnDisplayPropertyChanged;
         DataContext = viewModel;
-
-        // Karaoke sweep brush for the active line. Kept out of resource dictionaries (which freeze it)
-        // so its stops can be moved every frame; the template binds to the FillBrush property.
-        fillBrush = new LinearGradientBrush { StartPoint = new Point(0, 0), EndPoint = new Point(1, 0) };
-        for (var i = 0; i < 4; i++) fillBrush.GradientStops.Add(new GradientStop(Colors.White, i == 3 ? 1 : 0));
-        SetUpShadow();
-        UpdateFillColors();
+        Lyrics.Attach(viewModel);
 
         RestoreWindowPlacement();
         hideChromeTimer.Tick += OnHideChromeTick;
@@ -70,23 +51,84 @@ public partial class MainWindow : Window
         // so a plain MouseLeftButtonDown handler on Root would never see clicks on the text.
         Root.AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler(OnRootMouseDown), handledEventsToo: true);
 
-        Loaded += async (_, _) => await viewModel.StartAsync();
         StateChanged += (_, _) =>
         {
             viewModel.SetWindowVisible(WindowState != WindowState.Minimized);
-            UpdateFillRendering();
+            Lyrics.IsSuspended = WindowState == WindowState.Minimized;
         };
         Closing += (_, _) => SaveWindowPlacement();
         Closed += (_, _) =>
         {
-            StopFillRendering();
+            Lyrics.Detach();
             viewModel.Dispose();
             providers.Dispose();
             shazamHttp.Dispose();
         };
     }
 
-    public Brush FillBrush => fillBrush;
+    /// <summary>
+    /// Shows the window the app was last left in (the streamer window if streamer mode is on) and starts watching the player.
+    /// </summary>
+    public async void Start()
+    {
+        if (settings.Display.StreamerMode) EnterStreamerMode();
+        else Show();
+        await viewModel.StartAsync();
+    }
+
+    // ---- Streamer mode: this window steps aside for the capture-friendly StreamerWindow ----
+
+    private void EnterStreamerMode()
+    {
+        if (streamerWindow is not null) return;
+        if (WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
+
+        var window = new StreamerWindow(viewModel) { Width = Width, Height = Height };
+        if (double.IsFinite(Left) && double.IsFinite(Top))
+        {
+            window.WindowStartupLocation = WindowStartupLocation.Manual;
+            window.Left = Left;
+            window.Top = Top;
+        }
+        else
+        {
+            window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+        }
+        window.Closed += OnStreamerWindowClosed;
+        streamerWindow = window;
+        window.Show();
+
+        // An owned window hides with its owner, so an open settings window moves over to the new one.
+        if (settingsWindow is { IsLoaded: true }) settingsWindow.Owner = window;
+        Hide();
+    }
+
+    private void LeaveStreamerMode()
+    {
+        if (streamerWindow is not { } window) return;
+        streamerWindow = null;
+        TakePlacementFrom(window);
+        Show();
+        if (settingsWindow is { IsLoaded: true }) settingsWindow.Owner = this;
+        window.Close();
+    }
+
+    /// <summary>Closed by the user (Alt+F4, taskbar) rather than by leaving the mode: the app closes, still in streamer mode.</summary>
+    private void OnStreamerWindowClosed(object? sender, EventArgs e)
+    {
+        if (streamerWindow is null || !ReferenceEquals(sender, streamerWindow)) return;
+        TakePlacementFrom(streamerWindow);
+        streamerWindow = null;
+        Close();
+    }
+
+    /// <summary>The streamer window may have been moved; this window comes back where that one was.</summary>
+    private void TakePlacementFrom(Window window)
+    {
+        WindowStartupLocation = WindowStartupLocation.Manual;
+        Left = window.Left;
+        Top = window.Top;
+    }
 
     private void OnRootMouseDown(object sender, MouseButtonEventArgs e)
     {
@@ -173,135 +215,18 @@ public partial class MainWindow : Window
 
     private void OnOffsetResetClick(object sender, RoutedEventArgs e) => viewModel.ResetOffset();
 
-    private void OnLyricsUserScroll(object sender, RoutedEventArgs e) => lastUserScroll = DateTime.UtcNow;
-
-    private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName is nameof(MainViewModel.IsSynced) or nameof(MainViewModel.IsPlaying))
-            UpdateFillRendering();
-        if (e.PropertyName is nameof(MainViewModel.IsFocusView) && !viewModel.IsFocusView)
-            ScrollToLine(viewModel.ActiveIndex, force: true);
-    }
-
     private void OnDisplayPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         switch (e.PropertyName)
         {
-            case nameof(DisplaySettings.ShadowEnabled):
-                LyricsList.Effect = settings.Display.ShadowEnabled ? shadow : null;
-                break;
-            case nameof(DisplaySettings.ActiveColor) or nameof(DisplaySettings.InactiveColor):
-                UpdateFillColors();
-                break;
-            case nameof(DisplaySettings.LineFill):
-                UpdateFillRendering();
-                break;
             case nameof(DisplaySettings.LyricsOnly):
                 hideChromeTimer.Stop();
                 viewModel.IsChromeRevealed = false;
                 break;
-        }
-    }
-
-    /// <summary>One shadow for the whole lyrics block (cheaper than one effect per line).</summary>
-    private void SetUpShadow()
-    {
-        void Bind(DependencyProperty property, string path) =>
-            BindingOperations.SetBinding(shadow, property, new Binding(path) { Source = settings.Display });
-
-        Bind(DropShadowEffect.ColorProperty, nameof(DisplaySettings.ShadowColorValue));
-        Bind(DropShadowEffect.BlurRadiusProperty, nameof(DisplaySettings.ShadowBlur));
-        Bind(DropShadowEffect.ShadowDepthProperty, nameof(DisplaySettings.ShadowDepth));
-        Bind(DropShadowEffect.OpacityProperty, nameof(DisplaySettings.ShadowOpacity));
-        LyricsList.Effect = settings.Display.ShadowEnabled ? shadow : null;
-    }
-
-    // ---- Karaoke sweep: redraws per frame only while it is visible and the song is playing ----
-
-    private void UpdateFillColors()
-    {
-        var active = DisplaySettings.ParseColor(settings.Display.ActiveColor) ?? Colors.White;
-        var inactive = DisplaySettings.ParseColor(settings.Display.InactiveColor) ?? Colors.Gray;
-        fillBrush.GradientStops[0].Color = active;
-        fillBrush.GradientStops[1].Color = active;
-        fillBrush.GradientStops[2].Color = inactive;
-        fillBrush.GradientStops[3].Color = inactive;
-    }
-
-    private void UpdateFillRendering()
-    {
-        var shouldRun = settings.Display.LineFill && viewModel.IsSynced && viewModel.IsPlaying && WindowState != WindowState.Minimized;
-        if (shouldRun && !fillRendering)
-        {
-            fillRendering = true;
-            CompositionTarget.Rendering += OnFillFrame;
-        }
-        else if (!shouldRun)
-        {
-            StopFillRendering();
-            SetFillProgress(viewModel.GetActiveLineProgress());
-        }
-    }
-
-    private void StopFillRendering()
-    {
-        if (!fillRendering) return;
-        CompositionTarget.Rendering -= OnFillFrame;
-        fillRendering = false;
-    }
-
-    private void OnFillFrame(object? sender, EventArgs e) => SetFillProgress(viewModel.GetActiveLineProgress());
-
-    private void SetFillProgress(double progress)
-    {
-        // A soft edge looks more like a sweep than a hard cut.
-        const double edge = 0.04;
-        var p = Math.Clamp(progress, 0, 1);
-        fillBrush.GradientStops[1].Offset = Math.Max(0, p - edge / 2);
-        fillBrush.GradientStops[2].Offset = Math.Min(1, p + edge / 2);
-    }
-
-    // ---- Auto-scroll for the full (non-focus) view ----
-
-    /// <summary>Smoothly centres the active line unless the user scrolled by hand a moment ago.</summary>
-    private void ScrollToLine(int index, bool force = false)
-    {
-        if (viewModel.IsFocusView) return;
-        if (index < 0)
-        {
-            if (viewModel.Lines.Count == 0) LyricsScroller.ScrollToTop();
-            return;
-        }
-        if (!force && DateTime.UtcNow - lastUserScroll < ManualScrollHold) return;
-
-        // Wait for layout so the container exists and has its final (active) size.
-        Dispatcher.InvokeAsync(() =>
-        {
-            if (LyricsList.ItemContainerGenerator.ContainerFromIndex(index) is not FrameworkElement container) return;
-            var top = container.TransformToAncestor(LyricsList).Transform(new Point(0, 0)).Y + LyricsList.Margin.Top;
-            var target = top + container.ActualHeight / 2 - LyricsScroller.ViewportHeight / 2;
-            target = Math.Clamp(target, 0, LyricsScroller.ScrollableHeight);
-
-            scrollFrom = LyricsScroller.VerticalOffset;
-            scrollTo = target;
-            scrollStart = DateTime.UtcNow;
-            if (!scrollAnimating)
-            {
-                scrollAnimating = true;
-                CompositionTarget.Rendering += OnScrollFrame;
-            }
-        }, System.Windows.Threading.DispatcherPriority.Loaded);
-    }
-
-    private void OnScrollFrame(object? sender, EventArgs e)
-    {
-        var t = Math.Min(1.0, (DateTime.UtcNow - scrollStart) / ScrollAnimationDuration);
-        var eased = 1 - Math.Pow(1 - t, 3);
-        LyricsScroller.ScrollToVerticalOffset(scrollFrom + (scrollTo - scrollFrom) * eased);
-        if (t >= 1.0)
-        {
-            CompositionTarget.Rendering -= OnScrollFrame;
-            scrollAnimating = false;
+            case nameof(DisplaySettings.StreamerMode):
+                if (settings.Display.StreamerMode) EnterStreamerMode();
+                else LeaveStreamerMode();
+                break;
         }
     }
 
@@ -329,8 +254,12 @@ public partial class MainWindow : Window
     private void SaveWindowPlacement()
     {
         var bounds = WindowState == WindowState.Normal ? new Rect(Left, Top, Width, Height) : RestoreBounds;
-        settings.Left = bounds.Left;
-        settings.Top = bounds.Top;
+        // Never shown and never placed (the app ran in streamer mode from start to end): keep the saved position.
+        if (double.IsFinite(bounds.Left) && double.IsFinite(bounds.Top))
+        {
+            settings.Left = bounds.Left;
+            settings.Top = bounds.Top;
+        }
         settings.Width = bounds.Width;
         settings.Height = bounds.Height;
         settings.Save();

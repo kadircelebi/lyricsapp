@@ -29,4 +29,11 @@ public partial class App : Application
         FrameworkElement.LanguageProperty.OverrideMetadata(typeof(FrameworkElement), new FrameworkPropertyMetadata(xmlLanguage));
         FrameworkContentElement.LanguageProperty.OverrideMetadata(typeof(System.Windows.Documents.TextElement), new FrameworkPropertyMetadata(xmlLanguage));
     }
+
+    protected override void OnStartup(StartupEventArgs e)
+    {
+        base.OnStartup(e);
+        // Not StartupUri: the main window decides whether it or the streamer window is the one to show.
+        new MainWindow().Start();
+    }
 }
