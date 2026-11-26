@@ -19,6 +19,10 @@ public sealed record PlaybackState(bool IsPlaying, TimeSpan Position, DateTimeOf
         return Duration is { } d && d > TimeSpan.Zero && position > d ? d : position;
     }
 
+    /// <summary>How far through the song the player is, from 0 to 1; null when the player reports no length.</summary>
+    public double? GetProgress(DateTimeOffset now) =>
+        Duration is { } d && d > TimeSpan.Zero ? Math.Clamp(GetPosition(now) / d, 0, 1) : null;
+
     /// <summary>
     /// Some players report a missing or bogus LastUpdatedTime (e.g. year 1601).
     /// In that case trust the moment we received the report.

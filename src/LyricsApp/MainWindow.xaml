@@ -112,8 +112,9 @@
                    Visibility="{Binding HasStatus, Converter={StaticResource BoolToVisibility}}" />
 
         <!-- Header: artwork, title, tools. Hidden in lyrics-only mode until a line is clicked;
-             in streamer mode it is a plain song card without the tools. -->
-        <Border x:Name="Header" Grid.Row="0" Background="{StaticResource HeaderBackground}">
+             streamer mode shows its own song card instead. -->
+        <Border x:Name="Header" Grid.Row="0" Background="{StaticResource HeaderBackground}"
+                Visibility="{Binding Display.StreamerMode, Converter={StaticResource BoolToCollapsed}}">
             <Border.Style>
                 <Style TargetType="Border">
                     <Setter Property="Opacity" Value="1" />
@@ -132,11 +133,6 @@
                             <Setter Property="Opacity" Value="1" />
                             <Setter Property="IsHitTestVisible" Value="True" />
                         </MultiDataTrigger>
-                        <DataTrigger Binding="{Binding Display.StreamerMode}" Value="True">
-                            <Setter Property="Opacity" Value="1" />
-                            <Setter Property="Padding" Value="12,10" />
-                            <Setter Property="CornerRadius" Value="10" />
-                        </DataTrigger>
                     </Style.Triggers>
                 </Style>
             </Border.Style>
@@ -161,11 +157,10 @@
                     <TextBlock Text="{Binding Artist}" Foreground="{StaticResource SecondaryText}" FontSize="13"
                                TextTrimming="CharacterEllipsis" ToolTip="{Binding Artist}" />
                     <TextBlock Text="{Binding ProviderName}" Foreground="{StaticResource DimText}" FontSize="11"
-                               TextTrimming="CharacterEllipsis" Margin="0,2,0,0"
-                               Visibility="{Binding Display.StreamerMode, Converter={StaticResource BoolToCollapsed}}" />
+                               TextTrimming="CharacterEllipsis" Margin="0,2,0,0" />
                 </StackPanel>
 
-                <StackPanel Grid.Column="2" Visibility="{Binding Display.StreamerMode, Converter={StaticResource BoolToCollapsed}}">
+                <StackPanel Grid.Column="2">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <ToggleButton Style="{StaticResource ToolToggle}" Content="&#xE718;" ToolTip="{local:Loc AlwaysOnTop}" AutomationProperties.Name="{local:Loc AlwaysOnTop}"
                                       IsChecked="{Binding Display.Topmost}" />
@@ -194,6 +189,8 @@
                 </StackPanel>
             </Grid>
         </Border>
+
+        <local:StreamerCard Grid.Row="0" Visibility="{Binding Display.StreamerMode, Converter={StaticResource BoolToVisibility}}" />
 
         <!-- Resize edges: the window has no frame of its own. Hidden in the modes that let clicks through. -->
         <Grid x:Name="ResizeGrips" Grid.RowSpan="2"

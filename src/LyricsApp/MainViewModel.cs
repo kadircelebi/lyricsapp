@@ -51,6 +51,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private readonly TrackOffsets offsets;
     private readonly Dispatcher dispatcher;
     private readonly DispatcherTimer syncTimer;
+    private readonly DispatcherTimer progressTimer;
 
     private CancellationTokenSource? searchCts;
     private IReadOnlyList<LyricLine> syncedLines = [];
@@ -89,6 +90,10 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         syncTimer = new DispatcherTimer(DispatcherPriority.Render, dispatcher) { Interval = TimeSpan.FromMilliseconds(100) };
         syncTimer.Tick += (_, _) => UpdateActiveLine();
 
+        // Song progress (bar and elapsed time) moves slowly: a few steps a second are plenty. Runs only while it is on screen.
+        progressTimer = new DispatcherTimer(DispatcherPriority.Background, dispatcher) { Interval = TimeSpan.FromMilliseconds(250) };
+        progressTimer.Tick += (_, _) => UpdateSongProgress();
+
         watcher.TrackChanged += (_, track) => dispatcher.InvokeAsync(() => OnTrackChanged(track));
         watcher.PlaybackChanged += (_, state) => dispatcher.InvokeAsync(() => OnPlaybackChanged(state));
 
@@ -98,6 +103,11 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             {
                 OnPropertyChanged(nameof(IsFocusView));
                 UpdateLineStates();
+            }
+            if (e.PropertyName is nameof(DisplaySettings.StreamerMode) or nameof(DisplaySettings.StreamerProgress))
+            {
+                UpdateTimer();
+                UpdateSongProgress();
             }
         };
     }
@@ -153,6 +163,24 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         }
     }
     public int ActiveIndex => activeIndex;
+
+    private double songProgress;
+    private bool hasSongProgress;
+
+    /// <summary>How far through the song the player is, from 0 to 1 (the lyrics offset plays no part in it).</summary>
+    public double SongProgress { get => songProgress; private set => Set(ref songProgress, value); }
+
+    /// <summary>False when nothing is playing or the player does not report the song's length.</summary>
+    public bool HasSongProgress { get => hasSongProgress; private set => Set(ref hasSongProgress, value); }
+
+    private string songPositionText = string.Empty;
+    private string songDurationText = string.Empty;
+
+    /// <summary>Time played so far, as a player shows it (1:23).</summary>
+    public string SongPositionText { get => songPositionText; private set => Set(ref songPositionText, value); }
+
+    /// <summary>The song's length (3:45).</summary>
+    public string SongDurationText { get => songDurationText; private set => Set(ref songDurationText, value); }
 
     public string OffsetText => Strings.OffsetSeconds(offsetSeconds == 0
         ? "0"
@@ -217,6 +245,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         if (track is null)
         {
             currentQuery = null;
+            UpdateSongProgress();
             SetOffset(0);
             Title = Strings.WaitingForTrack;
             Artist = string.Empty;
@@ -399,6 +428,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         if (wasPlaying != state.IsPlaying) OnPropertyChanged(nameof(IsPlaying));
         UpdateTimer();
         UpdateActiveLine();
+        UpdateSongProgress();
 
         if (state.IsPlaying && pendingRecognition is { } pending && pending == currentQuery)
         {
@@ -412,6 +442,20 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         var shouldRun = IsSynced && playback.IsPlaying && isWindowVisible;
         if (shouldRun && !syncTimer.IsEnabled) syncTimer.Start();
         else if (!shouldRun && syncTimer.IsEnabled) syncTimer.Stop();
+
+        var showsProgress = Display.StreamerMode && Display.StreamerProgress && playback.IsPlaying && isWindowVisible;
+        if (showsProgress && !progressTimer.IsEnabled) progressTimer.Start();
+        else if (!showsProgress && progressTimer.IsEnabled) progressTimer.Stop();
+    }
+
+    private void UpdateSongProgress()
+    {
+        var now = DateTimeOffset.Now;
+        var progress = currentQuery is null ? null : playback.GetProgress(now);
+        HasSongProgress = progress is not null;
+        SongProgress = progress ?? 0;
+        SongPositionText = progress is null ? string.Empty : SongClock.Format(playback.GetPosition(now));
+        SongDurationText = progress is null ? string.Empty : SongClock.Format(playback.Duration ?? TimeSpan.Zero);
     }
 
     private void UpdateActiveLine()
@@ -482,6 +526,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     {
         searchCts?.Cancel();
         syncTimer.Stop();
+        progressTimer.Stop();
         watcher.Dispose();
     }
 }

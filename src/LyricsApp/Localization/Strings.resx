@@ -123,6 +123,9 @@
   <data name="StreamerModeHint" xml:space="preserve">
     <value>Made for window capture. Move the mouse over the window to get two small buttons in one corner: move and leave the mode. In OBS add a Window Capture source; for a transparent background choose the capture method "Windows 10 (1903 and up)". With the BitBlt method the background comes out black.</value>
   </data>
+  <data name="SettingsStreamerProgress" xml:space="preserve">
+    <value>Show the elapsed time, the song's length and a progress bar on the song card</value>
+  </data>
   <data name="StreamerMove" xml:space="preserve">
     <value>Move (drag)</value>
   </data>

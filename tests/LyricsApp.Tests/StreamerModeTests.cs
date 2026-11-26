@@ -37,6 +37,17 @@ public class StreamerModeTests
     }
 
     [Fact]
+    public void The_song_progress_bar_is_on_by_default_and_can_be_switched_off()
+    {
+        Assert.True(new DisplaySettings().StreamerProgress);
+        // Settings files written before the option existed.
+        Assert.True(JsonSerializer.Deserialize<DisplaySettings>("""{ "StreamerMode": true }""")!.StreamerProgress);
+
+        var saved = JsonSerializer.Serialize(new DisplaySettings { StreamerProgress = false });
+        Assert.False(JsonSerializer.Deserialize<DisplaySettings>(saved)!.StreamerProgress);
+    }
+
+    [Fact]
     public void Switching_streamer_mode_is_announced_once()
     {
         var display = new DisplaySettings();

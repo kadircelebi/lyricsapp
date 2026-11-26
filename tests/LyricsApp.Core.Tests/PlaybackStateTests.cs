@@ -19,6 +19,26 @@ public class PlaybackStateTests
     }
 
     [Fact]
+    public void Progress_runs_from_zero_to_one_over_the_song()
+    {
+        var playing = new PlaybackState(true, TimeSpan.FromSeconds(30), T0, 1, TimeSpan.FromSeconds(200));
+        Assert.Equal(0.15, playing.GetProgress(T0)!.Value, 6);
+        Assert.Equal(0.5, playing.GetProgress(T0.AddSeconds(70))!.Value, 6);
+        Assert.Equal(1.0, playing.GetProgress(T0.AddMinutes(10)));
+
+        var paused = playing with { IsPlaying = false };
+        Assert.Equal(0.15, paused.GetProgress(T0.AddMinutes(10))!.Value, 6);
+    }
+
+    [Fact]
+    public void No_progress_without_a_song_length()
+    {
+        Assert.Null(new PlaybackState(true, TimeSpan.FromSeconds(30), T0).GetProgress(T0));
+        Assert.Null(new PlaybackState(true, TimeSpan.FromSeconds(30), T0, 1, TimeSpan.Zero).GetProgress(T0));
+        Assert.Null(PlaybackState.Stopped.GetProgress(T0));
+    }
+
+    [Fact]
     public void Replaces_bogus_update_time()
     {
         var received = T0;

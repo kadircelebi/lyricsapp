@@ -10,6 +10,7 @@ public sealed class DisplaySettings : ObservableObject
     private bool topmost;
     private bool lyricsOnly;
     private bool streamerMode;
+    private bool streamerProgress = true;
     private double backgroundOpacity = 1.0;
     private bool focusMode = true;
     private int contextLines = 2;
@@ -35,6 +36,9 @@ public sealed class DisplaySettings : ObservableObject
     /// with nothing to click but a small move button and a leave button shown on hover.
     /// </summary>
     public bool StreamerMode { get => streamerMode; set => Set(ref streamerMode, value); }
+
+    /// <summary>In streamer mode, the song card shows the elapsed time, the song's length and a bar that fills as it plays.</summary>
+    public bool StreamerProgress { get => streamerProgress; set => Set(ref streamerProgress, value); }
 
     /// <summary>Background opacity in normal mode (0 = fully transparent, 1 = solid).</summary>
     public double BackgroundOpacity { get => backgroundOpacity; set => Set(ref backgroundOpacity, Math.Clamp(value, 0, 1)); }
